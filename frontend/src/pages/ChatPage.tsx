@@ -13,6 +13,11 @@ import ChatEmptyState from '../components/ChatEmptyState';
 interface Thread { id: string; title: string; updated_at: string; }
 interface Message { id: string; content: string; role: 'user' | 'ai' | 'admin_draft'; created_at: string; thread_id?: string; }
 
+const THREADS_PAGE_SIZE = 10;
+function sortThreadsByUpdatedAt<T extends { updated_at: string }>(list: T[]): T[] {
+  return [...list].sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+}
+
 export default function ChatPage() {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
@@ -25,6 +30,8 @@ export default function ChatPage() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [sending, setSending] = useState(false);
   const [loadingThreads, setLoadingThreads] = useState(true);
+  const [loadingMoreThreads, setLoadingMoreThreads] = useState(false);
+  const [pagination, setPagination] = useState<{ current_page: number; total_pages: number; take: number; total: number } | null>(null);
   const [isCreatingThread, setIsCreatingThread] = useState(false);
   const [, startTransition] = useTransition();
   const prevThreadId = useRef<string | null>(null);
@@ -38,12 +45,31 @@ export default function ChatPage() {
 
   useEffect(() => { scrollToBottom(); }, [messages, isTyping, streamingText]);
 
-  // Load threads
+  // Load threads (first page)
   useEffect(() => {
-    api.get('/threads').then(res => {
-      setThreads(res.data.data || []);
+    api.get('/threads', { params: { page: 1, take: THREADS_PAGE_SIZE } }).then(res => {
+      const data: Thread[] = res.data.data || [];
+      const pag = res.data.pagination || null;
+      setThreads(data);
+      setPagination(pag);
     }).finally(() => setLoadingThreads(false));
   }, []);
+
+  async function loadMoreThreads() {
+    if (!pagination || loadingMoreThreads || pagination.current_page >= pagination.total_pages) return;
+    setLoadingMoreThreads(true);
+    try {
+      const nextPage = pagination.current_page + 1;
+      const res = await api.get('/threads', { params: { page: nextPage, take: THREADS_PAGE_SIZE } });
+      const newData: Thread[] = res.data.data || [];
+      const ids = new Set(threads.map(t => t.id));
+      const merged = [...threads, ...newData.filter(t => !ids.has(t.id))];
+      setThreads(sortThreadsByUpdatedAt(merged));
+      setPagination(res.data.pagination || null);
+    } finally {
+      setLoadingMoreThreads(false);
+    }
+  }
 
   // WebSocket setup
   useEffect(() => {
@@ -65,10 +91,9 @@ export default function ChatPage() {
       setIsStreaming(false);
       setStreamingText('');
       setMessages(prev => [...prev, data.message]);
-      // Update thread updated_at
-      setThreads(prev => prev.map(t =>
+      setThreads(prev => sortThreadsByUpdatedAt(prev.map(t =>
         t.id === data.message.thread_id ? { ...t, updated_at: new Date().toISOString() } : t
-      ).sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()));
+      )));
     });
 
     socket.on('thread:stream:error', () => {
@@ -124,7 +149,7 @@ export default function ChatPage() {
       .then(res => {
         const real = res.data;
         startTransition(() => {
-          setThreads(prev => prev.map(t => t.id === tempThread.id ? real : t));
+          setThreads(prev => sortThreadsByUpdatedAt(prev.map(t => t.id === tempThread.id ? real : t)));
           setActiveThread(real);
         });
       })
@@ -250,6 +275,20 @@ export default function ChatPage() {
                   </button>
                 </div>
               ))}
+              {pagination && pagination.current_page < pagination.total_pages && (
+                <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border)' }}>
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    style={{ width: '100%', fontSize: 13 }}
+                    onClick={loadMoreThreads}
+                    disabled={loadingMoreThreads}
+                  >
+                    {loadingMoreThreads ? <Loader2 size={14} style={{ animation: 'spin 0.7s linear infinite' }} /> : null}
+                    {loadingMoreThreads ? ' Loading…' : 'Load more'}
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>

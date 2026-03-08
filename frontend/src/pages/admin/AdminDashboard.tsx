@@ -15,6 +15,11 @@ interface User_ { id: string; username: string; email: string; }
 interface Thread { id: string; title: string; user_id: string; updated_at: string; user: User_; is_auto_reply: boolean; }
 interface Message { id: string; content: string; role: 'user' | 'ai' | 'admin_draft'; created_at: string; thread_id: string; }
 
+const ADMIN_THREADS_PAGE_SIZE = 10;
+function sortThreadsByUpdatedAt<T extends { updated_at: string }>(list: T[]): T[] {
+  return [...list].sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+}
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
@@ -24,6 +29,8 @@ export default function AdminDashboard() {
   const [replyInput, setReplyInput] = useState('');
   const [sending, setSending] = useState(false);
   const [loadingThreads, setLoadingThreads] = useState(true);
+  const [loadingMoreThreads, setLoadingMoreThreads] = useState(false);
+  const [pagination, setPagination] = useState<{ current_page: number; total_pages: number; take: number; total: number } | null>(null);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [togglingBot, setTogglingBot] = useState(false);
   // Unread badges: { threadId -> count }
@@ -55,11 +62,29 @@ export default function AdminDashboard() {
 
   function loadThreads(silent = false) {
     if (!silent) setLoadingThreads(true);
-    return api.get('/admin/threads?take=50').then(res => {
+    return api.get('/admin/threads', { params: { page: 1, take: ADMIN_THREADS_PAGE_SIZE } }).then(res => {
       const data: Thread[] = res.data.data || [];
+      const pag = res.data.pagination || null;
       setThreads(data);
+      setPagination(pag);
       return data;
     }).finally(() => setLoadingThreads(false));
+  }
+
+  async function loadMoreThreads() {
+    if (!pagination || loadingMoreThreads || pagination.current_page >= pagination.total_pages) return;
+    setLoadingMoreThreads(true);
+    try {
+      const nextPage = pagination.current_page + 1;
+      const res = await api.get('/admin/threads', { params: { page: nextPage, take: ADMIN_THREADS_PAGE_SIZE } });
+      const newData: Thread[] = res.data.data || [];
+      const ids = new Set(threads.map(t => t.id));
+      const merged = [...threads, ...newData.filter(t => !ids.has(t.id))];
+      setThreads(sortThreadsByUpdatedAt(merged));
+      setPagination(res.data.pagination || null);
+    } finally {
+      setLoadingMoreThreads(false);
+    }
   }
 
   useEffect(() => { loadThreads(); }, []);
@@ -75,14 +100,12 @@ export default function AdminDashboard() {
     socket.on('admin:new_message', (data: { threadId: string; message: Message; thread: Thread }) => {
       const currentThread = activeThreadRef.current;
 
-      // Cập nhật hoặc thêm thread vào danh sách, đưa lên đầu
       setThreads(prev => {
         const exists = prev.findIndex(t => t.id === data.threadId);
         const updatedThread = data.thread || (exists >= 0 ? prev[exists] : null);
         if (!updatedThread) return prev;
-
         const filtered = prev.filter(t => t.id !== data.threadId);
-        return [{ ...updatedThread, updated_at: data.message.created_at }, ...filtered];
+        return sortThreadsByUpdatedAt([{ ...updatedThread, updated_at: data.message.created_at }, ...filtered]);
       });
 
       // Nếu đang xem thread này → thêm message vào luôn, không tăng badge
@@ -153,16 +176,20 @@ export default function AdminDashboard() {
 
   async function toggleAutoReply() {
     if (!activeThread || togglingBot) return;
+    const newState = !activeThread.is_auto_reply;
+    // Optimistic update: reflect UI immediately
+    setActiveThread(prev => prev ? { ...prev, is_auto_reply: newState } : null);
+    setThreads(prev => prev.map(t => t.id === activeThread.id ? { ...t, is_auto_reply: newState } : t));
     setTogglingBot(true);
     try {
-      const newState = !activeThread.is_auto_reply;
       await api.post(`/admin/threads/${activeThread.id}/toggle-auto-reply`, { is_auto_reply: newState });
-      
-      // Update local state
-      setActiveThread({ ...activeThread, is_auto_reply: newState });
-      setThreads(prev => prev.map(t => t.id === activeThread.id ? { ...t, is_auto_reply: newState } : t));
-    } catch { } // ignore
-    finally { setTogglingBot(false); }
+    } catch {
+      // Revert on error
+      setActiveThread(prev => prev ? { ...prev, is_auto_reply: !newState } : null);
+      setThreads(prev => prev.map(t => t.id === activeThread.id ? { ...t, is_auto_reply: !newState } : t));
+    } finally {
+      setTogglingBot(false);
+    }
   }
 
   function handleLogout() { logout(); navigate('/admin/login'); }
@@ -272,6 +299,20 @@ export default function AdminDashboard() {
               </div>
             );
           })}
+          {!loadingThreads && threads.length > 0 && pagination && pagination.current_page < pagination.total_pages && (
+            <div style={{ padding: '12px 8px', borderTop: '1px solid var(--border)' }}>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                style={{ width: '100%', fontSize: 12, gap: 6 }}
+                onClick={loadMoreThreads}
+                disabled={loadingMoreThreads}
+              >
+                {loadingMoreThreads ? <Loader2 size={12} style={{ animation: 'spin 0.7s linear infinite' }} /> : null}
+                {loadingMoreThreads ? ' Loading…' : 'Load more'}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Admin user footer */}

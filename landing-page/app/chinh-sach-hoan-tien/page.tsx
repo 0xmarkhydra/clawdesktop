@@ -32,21 +32,21 @@ export default function ChinhSachHoanTienPage() {
               <ul className="mt-2 list-inside list-disc space-y-1">
                 <li>Bạn chưa sử dụng hoặc kích hoạt các tính năng/ quyền lợi dành riêng cho gói trả phí đó (nếu có).</li>
                 <li>Yêu cầu hoàn tiền gửi qua kênh chính thức (Zalo tư vấn hoặc email được công bố trên website).</li>
-                <li>Chúng tôi xác minh được giao dịch và thông tin tài khoản/ngân hàng để hoàn tiền.</li>
+                <li>Tôi xác minh được giao dịch và thông tin tài khoản/ngân hàng để hoàn tiền.</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-lg font-semibold text-foreground">3. Cách xử lý hoàn tiền</h2>
               <p>
-                Sau khi yêu cầu hợp lệ được xác nhận, chúng tôi sẽ tiến hành hoàn tiền trong vòng <strong className="text-foreground">14 ngày làm việc</strong> qua cùng phương thức thanh toán bạn đã dùng (ví dụ chuyển khoản về tài khoản đã thanh toán). Trong một số trường hợp, ngân hàng hoặc cổng thanh toán có thể mất thêm vài ngày để số tiền về tài khoản của bạn.
+                Sau khi yêu cầu hợp lệ được xác nhận, tôi sẽ tiến hành hoàn tiền trong vòng <strong className="text-foreground">14 ngày làm việc</strong> qua cùng phương thức thanh toán bạn đã dùng (ví dụ chuyển khoản về tài khoản đã thanh toán). Trong một số trường hợp, ngân hàng hoặc cổng thanh toán có thể mất thêm vài ngày để số tiền về tài khoản của bạn.
               </p>
             </section>
 
             <section>
               <h2 className="text-lg font-semibold text-foreground">4. Trường hợp không áp dụng hoàn tiền</h2>
               <p>
-                Chúng tôi có thể từ chối hoàn tiền nếu: (i) quá 7 ngày kể từ ngày thanh toán; (ii) bạn đã sử dụng đầy đủ quyền lợi gói trả phí; (iii) có dấu hiệu lạm dụng, gian lận hoặc vi phạm điều khoản sử dụng; (iv) pháp luật hoặc chính sách của cổng thanh toán không cho phép hoàn tiền trong trường hợp đó.
+                Tôi có thể từ chối hoàn tiền nếu: (i) quá 7 ngày kể từ ngày thanh toán; (ii) bạn đã sử dụng đầy đủ quyền lợi gói trả phí; (iii) có dấu hiệu lạm dụng, gian lận hoặc vi phạm điều khoản sử dụng; (iv) pháp luật hoặc chính sách của cổng thanh toán không cho phép hoàn tiền trong trường hợp đó.
               </p>
             </section>
 
@@ -61,7 +61,7 @@ export default function ChinhSachHoanTienPage() {
                 <Link href="https://zalo.me/g/iirzlr303" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
                   Cộng đồng Zalo
                 </Link>
-                . Chúng tôi sẽ phản hồi trong giờ làm việc.
+                . Tôi sẽ phản hồi trong giờ làm việc.
               </p>
             </section>
           </div>

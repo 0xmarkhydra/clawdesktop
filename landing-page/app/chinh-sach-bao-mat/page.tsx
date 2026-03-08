@@ -25,44 +25,44 @@ export default function ChinhSachBaoMatPage() {
             </section>
 
             <section>
-              <h2 className="text-lg font-semibold text-foreground">2. Dữ liệu chúng tôi có thể thu thập</h2>
+              <h2 className="text-lg font-semibold text-foreground">2. Dữ liệu tôi có thể thu thập</h2>
               <p>
-                Trên website: chúng tôi có thể sử dụng công cụ phân tích (ví dụ Google Analytics, Vercel Analytics) để thu thập dữ liệu truy cập không nhận dạng cá nhân (trình duyệt, thiết bị, trang xem). Khi bạn liên hệ qua Zalo hoặc form, chúng tôi lưu thông tin bạn cung cấp (tên, số điện thoại, nội dung) chỉ để hỗ trợ và trả lời bạn.
+                Trên website: tôi có thể sử dụng công cụ phân tích (ví dụ Google Analytics, Vercel Analytics) để thu thập dữ liệu truy cập không nhận dạng cá nhân (trình duyệt, thiết bị, trang xem). Khi bạn liên hệ qua Zalo hoặc form, tôi lưu thông tin bạn cung cấp (tên, số điện thoại, nội dung) chỉ để hỗ trợ và trả lời bạn.
               </p>
             </section>
 
             <section>
               <h2 className="text-lg font-semibold text-foreground">3. Cách sử dụng dữ liệu</h2>
               <p>
-                Dữ liệu thu thập được dùng để cải thiện trải nghiệm website, hỗ trợ người dùng và gửi thông tin cập nhật sản phẩm (nếu bạn đồng ý). Chúng tôi không bán dữ liệu cá nhân cho bên thứ ba. Dữ liệu có thể được chia sẻ khi pháp luật yêu cầu hoặc để bảo vệ quyền lợi hợp pháp của chúng tôi và người dùng.
+                Dữ liệu thu thập được dùng để cải thiện trải nghiệm website, hỗ trợ người dùng và gửi thông tin cập nhật sản phẩm (nếu bạn đồng ý). Tôi không bán dữ liệu cá nhân cho bên thứ ba. Dữ liệu có thể được chia sẻ khi pháp luật yêu cầu hoặc để bảo vệ quyền lợi hợp pháp của tôi và người dùng.
               </p>
             </section>
 
             <section>
               <h2 className="text-lg font-semibold text-foreground">4. Dữ liệu trên máy bạn (ClawDesktop)</h2>
               <p>
-                Phần mềm ClawDesktop chạy cục bộ trên máy bạn. Các cuộc hội thoại, tài khoản Zalo/Shopee/ngân hàng bạn kết nối, và dữ liệu do trợ lý AI xử lý có thể được lưu trên máy bạn hoặc gửi tới API mô hình AI (Claude, OpenAI, v.v.) tùy cấu hình. Bạn cần tự bảo vệ máy tính và tài khoản; chúng tôi khuyến nghị đọc chính sách bảo mật của từng dịch vụ bạn tích hợp.
+                Phần mềm ClawDesktop chạy cục bộ trên máy bạn. Các cuộc hội thoại, tài khoản Zalo/Shopee/ngân hàng bạn kết nối, và dữ liệu do trợ lý AI xử lý có thể được lưu trên máy bạn hoặc gửi tới API mô hình AI (Claude, OpenAI, v.v.) tùy cấu hình. Bạn cần tự bảo vệ máy tính và tài khoản; tôi khuyến nghị đọc chính sách bảo mật của từng dịch vụ bạn tích hợp.
               </p>
             </section>
 
             <section>
               <h2 className="text-lg font-semibold text-foreground">5. Bảo mật và lưu trữ</h2>
               <p>
-                Chúng tôi áp dụng biện pháp kỹ thuật và tổ chức phù hợp để bảo vệ dữ liệu thu thập qua website và kênh hỗ trợ. Dữ liệu được lưu trong thời gian cần thiết cho mục đích đã nêu hoặc theo quy định pháp luật.
+                Tôi áp dụng biện pháp kỹ thuật và tổ chức phù hợp để bảo vệ dữ liệu thu thập qua website và kênh hỗ trợ. Dữ liệu được lưu trong thời gian cần thiết cho mục đích đã nêu hoặc theo quy định pháp luật.
               </p>
             </section>
 
             <section>
               <h2 className="text-lg font-semibold text-foreground">6. Quyền của bạn</h2>
               <p>
-                Bạn có quyền yêu cầu truy cập, chỉnh sửa hoặc xóa dữ liệu cá nhân liên quan đến bạn mà chúng tôi đang lưu. Để thực hiện, vui lòng liên hệ qua Cộng đồng Zalo hoặc Zalo tư vấn. Nếu bạn ở EU hoặc các khu vực có quy định tương tự, bạn có thể có thêm quyền theo GDPR hoặc luật địa phương.
+                Bạn có quyền yêu cầu truy cập, chỉnh sửa hoặc xóa dữ liệu cá nhân liên quan đến bạn mà tôi đang lưu. Để thực hiện, vui lòng liên hệ qua Cộng đồng Zalo hoặc Zalo tư vấn. Nếu bạn ở EU hoặc các khu vực có quy định tương tự, bạn có thể có thêm quyền theo GDPR hoặc luật địa phương.
               </p>
             </section>
 
             <section>
               <h2 className="text-lg font-semibold text-foreground">7. Cập nhật chính sách</h2>
               <p>
-                Chúng tôi có thể cập nhật chính sách bảo mật theo thời gian. Phiên bản mới nhất sẽ được đăng trên trang này với ngày cập nhật. Việc bạn tiếp tục sử dụng website hoặc sản phẩm sau khi có thay đổi được hiểu là bạn chấp nhận chính sách mới.
+                Tôi có thể cập nhật chính sách bảo mật theo thời gian. Phiên bản mới nhất sẽ được đăng trên trang này với ngày cập nhật. Việc bạn tiếp tục sử dụng website hoặc sản phẩm sau khi có thay đổi được hiểu là bạn chấp nhận chính sách mới.
               </p>
             </section>
 

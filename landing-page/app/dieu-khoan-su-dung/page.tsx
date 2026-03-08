@@ -48,14 +48,14 @@ export default function DieuKhoanSuDungPage() {
             <section>
               <h2 className="text-lg font-semibold text-foreground">5. Miễn trừ trách nhiệm</h2>
               <p>
-                Sản phẩm được cung cấp &quot;nguyên trạng&quot;. Chúng tôi không đảm bảo không gián đoạn hoặc không lỗi. Bạn sử dụng phần mềm trên máy của mình và chịu trách nhiệm về dữ liệu, tài khoản và hành vi sử dụng. Chúng tôi không chịu trách nhiệm cho thiệt hại gián tiếp hoặc phát sinh từ việc sử dụng ClawDesktop.
+                Sản phẩm được cung cấp &quot;nguyên trạng&quot;. Tôi không đảm bảo không gián đoạn hoặc không lỗi. Bạn sử dụng phần mềm trên máy của mình và chịu trách nhiệm về dữ liệu, tài khoản và hành vi sử dụng. Tôi không chịu trách nhiệm cho thiệt hại gián tiếp hoặc phát sinh từ việc sử dụng ClawDesktop.
               </p>
             </section>
 
             <section>
               <h2 className="text-lg font-semibold text-foreground">6. Thay đổi điều khoản</h2>
               <p>
-                Chúng tôi có thể cập nhật điều khoản sử dụng theo thời gian. Phiên bản mới nhất sẽ được đăng trên trang này. Việc bạn tiếp tục sử dụng sản phẩm sau khi có thay đổi được hiểu là bạn chấp nhận điều khoản mới.
+                Tôi có thể cập nhật điều khoản sử dụng theo thời gian. Phiên bản mới nhất sẽ được đăng trên trang này. Việc bạn tiếp tục sử dụng sản phẩm sau khi có thay đổi được hiểu là bạn chấp nhận điều khoản mới.
               </p>
             </section>
 

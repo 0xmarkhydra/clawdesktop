@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from "react";
 const faqs = [
   {
     q: "ClawDesktop.vn có liên quan gì đến OpenClaw chính thức không?",
-    a: "ClawDesktop.vn là phiên bản desktop không chính thức của OpenClaw, dựa trên OpenClaw official (open-source). Chúng tôi đã Việt hoá toàn bộ giao diện và thêm skill. OpenClaw là dự án open-source và chúng tôi tuân thủ đầy đủ giấy phép.",
+    a: "ClawDesktop.vn là phiên bản desktop không chính thức của OpenClaw, dựa trên OpenClaw official (open-source). Tôi đã Việt hoá toàn bộ giao diện và thêm skill. OpenClaw là dự án open-source và tôi tuân thủ đầy đủ giấy phép.",
   },
   {
     q: "Tôi cần có kiến thức kỹ thuật gì để cài không?",
@@ -13,7 +13,7 @@ const faqs = [
   },
   {
     q: "ClawDesktop có an toàn không? Dữ liệu của tôi có bị lộ không?",
-    a: "ClawDesktop chạy hoàn toàn local trên máy tính của bạn – không upload dữ liệu lên server của chúng tôi. API key và thông tin cá nhân được mã hoá ngay trên máy bạn. Chúng tôi không có quyền truy cập vào dữ liệu của bạn.",
+    a: "ClawDesktop chạy hoàn toàn local trên máy tính của bạn – không upload dữ liệu lên server của tôi. API key và thông tin cá nhân được mã hoá ngay trên máy bạn. Tôi không có quyền truy cập vào dữ liệu của bạn.",
   },
   {
     q: "OpenClaw Desktop có mất phí không?",
@@ -25,7 +25,7 @@ const faqs = [
   },
   {
     q: "Nếu gặp lỗi thì được hỗ trợ như thế nào?",
-    a: "Tham gia cộng đồng Zalo để được hỗ trợ. Chúng tôi phản hồi trong 30 phút trong giờ làm việc.",
+    a: "Tham gia cộng đồng Zalo để được hỗ trợ. Tôi phản hồi trong 30 phút trong giờ làm việc.",
   },
 ];
 
