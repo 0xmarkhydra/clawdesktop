@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useTransition } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Send, LogOut, User, MessageSquare, Loader2, Trash2 } from 'lucide-react';
+import { Plus, Send, LogOut, User, Loader2, Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -8,6 +8,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { api } from '../lib/api';
 import { useAuthStore } from '../store/auth.store';
 import { connectSocket, disconnectSocket, joinThread, leaveThread } from '../lib/socket';
+import ChatEmptyState from '../components/ChatEmptyState';
 
 interface Thread { id: string; title: string; updated_at: string; }
 interface Message { id: string; content: string; role: 'user' | 'ai' | 'admin_draft'; created_at: string; thread_id?: string; }
@@ -24,6 +25,8 @@ export default function ChatPage() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [sending, setSending] = useState(false);
   const [loadingThreads, setLoadingThreads] = useState(true);
+  const [isCreatingThread, setIsCreatingThread] = useState(false);
+  const [, startTransition] = useTransition();
   const prevThreadId = useRef<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -107,10 +110,12 @@ export default function ChatPage() {
     });
   }, [activeThread?.id]);
 
-  function createThread() {
+  const createThread = useCallback(() => {
+    if (isCreatingThread) return;
+    setIsCreatingThread(true);
     const tempThread: Thread = {
       id: 'temp-' + Date.now(),
-      title: `New conversation ${threads.length + 1}`,
+      title: `New conversation`,
       updated_at: new Date().toISOString(),
     };
     setThreads(prev => [tempThread, ...prev]);
@@ -118,14 +123,17 @@ export default function ChatPage() {
     api.post('/threads', { title: tempThread.title })
       .then(res => {
         const real = res.data;
-        setThreads(prev => prev.map(t => t.id === tempThread.id ? real : t));
-        setActiveThread(real);
+        startTransition(() => {
+          setThreads(prev => prev.map(t => t.id === tempThread.id ? real : t));
+          setActiveThread(real);
+        });
       })
       .catch(() => {
         setThreads(prev => prev.filter(t => t.id !== tempThread.id));
         setActiveThread(prev => prev?.id === tempThread.id ? null : prev);
-      });
-  }
+      })
+      .finally(() => setIsCreatingThread(false));
+  }, [isCreatingThread]);
 
   async function sendMessage() {
     if (!input.trim() || !activeThread || sending) return;
@@ -194,8 +202,18 @@ export default function ChatPage() {
           </div>
           <span className="brand-name">Claw<span>Desktop.VN</span></span>
         </div>
-          <button className="btn-new-thread" onClick={createThread}>
-            <Plus size={16} /> New Chat
+          <button
+            type="button"
+            className="btn-new-thread"
+            onClick={createThread}
+            disabled={isCreatingThread}
+          >
+            {isCreatingThread ? (
+              <Loader2 size={16} style={{ animation: 'spin 0.7s linear infinite' }} />
+            ) : (
+              <Plus size={16} />
+            )}
+            New Chat
           </button>
         </div>
 
@@ -249,14 +267,7 @@ export default function ChatPage() {
       {/* CHAT AREA */}
       <main className="chat-area">
         {!activeThread ? (
-          <div className="chat-empty" style={{ flex: 1, marginTop: '20vh' }}>
-            <div className="chat-empty-icon"><MessageSquare size={24} color="var(--accent)" /></div>
-            <h3>Select or start a conversation</h3>
-            <p>Choose a chat from the sidebar or create a new one</p>
-            <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={createThread}>
-              <Plus size={16} /> New Chat
-            </button>
-          </div>
+          <ChatEmptyState onCreateThread={createThread} isCreating={isCreatingThread} />
         ) : (
           <>
             <div className="chat-header">
@@ -270,92 +281,101 @@ export default function ChatPage() {
             </div>
 
             <div className="chat-messages">
-              {messages.filter(m => m.role !== 'admin_draft').map(msg => (
-                <div key={msg.id} className={`message-row ${msg.role === 'user' ? 'user-row' : ''}`}>
-                  <div className={`msg-avatar ${msg.role === 'user' ? 'user-avatar-icon' : 'ai-avatar'}`}>
-                    {msg.role === 'user' ? <User size={14} /> : <img src="/logo.svg" alt="Logo" width={22} height={22} />}
-                  </div>
-                  <div className={`message-bubble ${msg.role === 'user' ? 'user-bubble' : 'ai-bubble'}`}>
-                    {msg.role === 'user' ? (
-                      msg.content
-                    ) : (
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                          code({ node, className, children, ...props }: any) {
-                            const match = /language-(\w+)/.exec(className || '');
-                            return match ? (
-                              <SyntaxHighlighter
-                                style={vscDarkPlus as any}
-                                language={match[1]}
-                                PreTag="div"
-                                {...props}
-                              >
-                                {String(children).replace(/\n$/, '')}
-                              </SyntaxHighlighter>
-                            ) : (
-                              <code className={className} {...props}>
-                                {children}
-                              </code>
-                            );
-                          }
-                        }}
-                      >
-                        {msg.content}
-                      </ReactMarkdown>
-                    )}
-                    <span className="message-time">{formatTime(msg.created_at)}</span>
-                  </div>
-                </div>
-              ))}
-
-              {/* Typing indicator */}
-              {isTyping && (
-                <div className="typing-row">
-                  <div className="msg-avatar ai-avatar"><img src="/logo.svg" alt="Logo" width={22} height={22} /></div>
-                  <div className="typing-bubble">
-                    <div className="typing-dot" />
-                    <div className="typing-dot" />
-                    <div className="typing-dot" />
-                  </div>
-                </div>
-              )}
-
-              {/* Streaming text */}
-              {isStreaming && streamingText && (
-                <div className="message-row">
-                  <div className="msg-avatar ai-avatar"><img src="/logo.svg" alt="Logo" width={22} height={22} /></div>
-                  <div className="message-bubble ai-bubble">
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      components={{
-                        code({ node, className, children, ...props }: any) {
-                          const match = /language-(\w+)/.exec(className || '');
-                          return match ? (
-                            <SyntaxHighlighter
-                              style={vscDarkPlus as any}
-                              language={match[1]}
-                              PreTag="div"
-                              {...props}
-                            >
-                              {String(children).replace(/\n$/, '')}
-                            </SyntaxHighlighter>
+              {(() => {
+                const visibleMessages = messages.filter(m => m.role !== 'admin_draft');
+                const hasContent = visibleMessages.length > 0 || isTyping || isStreaming;
+                if (!hasContent) {
+                  return <div ref={messagesEndRef} />;
+                }
+                return (
+                  <>
+                    {visibleMessages.map(msg => (
+                      <div key={msg.id} className={`message-row ${msg.role === 'user' ? 'user-row' : ''}`}>
+                        <div className={`msg-avatar ${msg.role === 'user' ? 'user-avatar-icon' : 'ai-avatar'}`}>
+                          {msg.role === 'user' ? <User size={14} /> : <img src="/logo.svg" alt="Logo" width={22} height={22} />}
+                        </div>
+                        <div className={`message-bubble ${msg.role === 'user' ? 'user-bubble' : 'ai-bubble'}`}>
+                          {msg.role === 'user' ? (
+                            msg.content
                           ) : (
-                            <code className={className} {...props}>
-                              {children}
-                            </code>
-                          );
-                        }
-                      }}
-                    >
-                      {streamingText}
-                    </ReactMarkdown>
-                    <span className="streaming-cursor" />
-                  </div>
-                </div>
-              )}
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              components={{
+                                code({ node, className, children, ...props }: any) {
+                                  const match = /language-(\w+)/.exec(className || '');
+                                  return match ? (
+                                    <SyntaxHighlighter
+                                      style={vscDarkPlus as any}
+                                      language={match[1]}
+                                      PreTag="div"
+                                      {...props}
+                                    >
+                                      {String(children).replace(/\n$/, '')}
+                                    </SyntaxHighlighter>
+                                  ) : (
+                                    <code className={className} {...props}>
+                                      {children}
+                                    </code>
+                                  );
+                                }
+                              }}
+                            >
+                              {msg.content}
+                            </ReactMarkdown>
+                          )}
+                          <span className="message-time">{formatTime(msg.created_at)}</span>
+                        </div>
+                      </div>
+                    ))}
 
-              <div ref={messagesEndRef} />
+                    {isTyping && (
+                      <div className="typing-row">
+                        <div className="msg-avatar ai-avatar"><img src="/logo.svg" alt="Logo" width={22} height={22} /></div>
+                        <div className="typing-bubble">
+                          <div className="typing-dot" />
+                          <div className="typing-dot" />
+                          <div className="typing-dot" />
+                        </div>
+                      </div>
+                    )}
+
+                    {isStreaming && streamingText && (
+                      <div className="message-row">
+                        <div className="msg-avatar ai-avatar"><img src="/logo.svg" alt="Logo" width={22} height={22} /></div>
+                        <div className="message-bubble ai-bubble">
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                              code({ node, className, children, ...props }: any) {
+                                const match = /language-(\w+)/.exec(className || '');
+                                return match ? (
+                                  <SyntaxHighlighter
+                                    style={vscDarkPlus as any}
+                                    language={match[1]}
+                                    PreTag="div"
+                                    {...props}
+                                  >
+                                    {String(children).replace(/\n$/, '')}
+                                  </SyntaxHighlighter>
+                                ) : (
+                                  <code className={className} {...props}>
+                                    {children}
+                                  </code>
+                                );
+                              }
+                            }}
+                          >
+                            {streamingText}
+                          </ReactMarkdown>
+                          <span className="streaming-cursor" />
+                        </div>
+                      </div>
+                    )}
+
+                    <div ref={messagesEndRef} />
+                  </>
+                );
+              })()}
             </div>
 
             <div className="chat-input-area">
