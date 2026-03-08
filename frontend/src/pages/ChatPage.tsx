@@ -4,10 +4,9 @@ import { Bot, Plus, Send, LogOut, User, MessageSquare, Loader2 } from 'lucide-re
 import { api } from '../lib/api';
 import { useAuthStore } from '../store/auth.store';
 import { connectSocket, disconnectSocket, joinThread, leaveThread } from '../lib/socket';
-import { getSocket } from '../lib/socket';
 
 interface Thread { id: string; title: string; updated_at: string; }
-interface Message { id: string; content: string; role: 'user' | 'ai' | 'admin_draft'; created_at: string; }
+interface Message { id: string; content: string; role: 'user' | 'ai' | 'admin_draft'; created_at: string; thread_id?: string; }
 
 export default function ChatPage() {
   const navigate = useNavigate();
@@ -148,9 +147,11 @@ export default function ChatPage() {
       <aside className="sidebar">
         <div className="sidebar-header">
           <div className="sidebar-brand">
-            <div className="brand-icon"><Bot size={16} color="#fff" /></div>
-            <span className="brand-name">Claw<span>AI</span></span>
+          <div className="brand-icon">
+            <img src="/logo.svg" alt="Logo" width={22} height={22} />
           </div>
+          <span className="brand-name">Claw<span>Desktop</span></span>
+        </div>
           <button className="btn-new-thread" onClick={createThread}>
             <Plus size={16} /> New Chat
           </button>

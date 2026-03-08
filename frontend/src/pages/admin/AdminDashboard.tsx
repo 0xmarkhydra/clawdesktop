@@ -184,10 +184,10 @@ export default function AdminDashboard() {
             )}
           </div>
           <div className="sidebar-brand">
-            <div className="brand-icon" style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)' }}>
-              <Bot size={16} color="#fff" />
+            <div className="brand-icon" style={{ background: 'transparent' }}>
+              <img src="/logo.svg" alt="Logo" width={24} height={24} />
             </div>
-            <span className="brand-name">Claw<span>AI</span></span>
+            <span className="brand-name">Claw<span>Desktop</span></span>
           </div>
           <button className="btn btn-ghost" style={{ width: '100%', fontSize: 12, gap: 6, marginTop: 8 }}
             onClick={() => loadThreads(true)}>

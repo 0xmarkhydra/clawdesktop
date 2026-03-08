@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Bot, Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuthStore } from '../store/auth.store';
 
@@ -31,10 +31,10 @@ export default function LoginPage() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-logo">
-          <div className="auth-logo-icon">
-            <Bot size={20} color="#fff" />
+          <div className="auth-logo-icon" style={{ background: 'transparent' }}>
+            <img src="/logo.svg" alt="Logo" width={28} height={28} />
           </div>
-          <div className="auth-logo-text">Claw<span>AI</span></div>
+          <div className="auth-logo-text">Claw<span>Desktop</span></div>
         </div>
 
         <h1 className="auth-title">Welcome back</h1>
