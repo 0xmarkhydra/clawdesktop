@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -46,6 +47,12 @@ export class ThreadController {
   @ApiOperation({ summary: 'Get thread detail with messages' })
   async getThread(@Param('id') id: string, @Request() req) {
     return this.threadService.getThread(id, req.user.sub);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a thread (soft delete)' })
+  async deleteThread(@Param('id') id: string, @Request() req) {
+    return this.threadService.deleteThread(id, req.user.sub);
   }
 
   @Get(':id/messages')

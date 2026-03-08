@@ -34,7 +34,7 @@ export default function RegisterPage() {
           <div className="auth-logo-icon" style={{ background: 'transparent' }}>
             <img src="/logo.svg" alt="Logo" width={28} height={28} />
           </div>
-          <div className="auth-logo-text">Claw<span>Desktop</span></div>
+          <div className="auth-logo-text">Claw<span>Desktop.VN</span></div>
         </div>
 
         <h1 className="auth-title">Create account</h1>

@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bot, Plus, Send, LogOut, User, MessageSquare, Loader2 } from 'lucide-react';
+import { Plus, Send, LogOut, User, MessageSquare, Loader2, Trash2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { api } from '../lib/api';
 import { useAuthStore } from '../store/auth.store';
 import { connectSocket, disconnectSocket, joinThread, leaveThread } from '../lib/socket';
@@ -82,6 +86,15 @@ export default function ChatPage() {
   // Switch threads
   useEffect(() => {
     if (!activeThread) return;
+    if (activeThread.id.startsWith('temp-')) {
+      if (prevThreadId.current) leaveThread(prevThreadId.current);
+      prevThreadId.current = activeThread.id;
+      setMessages([]);
+      setIsTyping(false);
+      setIsStreaming(false);
+      setStreamingText('');
+      return;
+    }
     if (prevThreadId.current) leaveThread(prevThreadId.current);
     prevThreadId.current = activeThread.id;
     joinThread(activeThread.id);
@@ -94,11 +107,24 @@ export default function ChatPage() {
     });
   }, [activeThread?.id]);
 
-  async function createThread() {
-    const res = await api.post('/threads', { title: 'New conversation' });
-    const newThread = res.data;
-    setThreads(prev => [newThread, ...prev]);
-    setActiveThread(newThread);
+  function createThread() {
+    const tempThread: Thread = {
+      id: 'temp-' + Date.now(),
+      title: `New conversation ${threads.length + 1}`,
+      updated_at: new Date().toISOString(),
+    };
+    setThreads(prev => [tempThread, ...prev]);
+    setActiveThread(tempThread);
+    api.post('/threads', { title: tempThread.title })
+      .then(res => {
+        const real = res.data;
+        setThreads(prev => prev.map(t => t.id === tempThread.id ? real : t));
+        setActiveThread(real);
+      })
+      .catch(() => {
+        setThreads(prev => prev.filter(t => t.id !== tempThread.id));
+        setActiveThread(prev => prev?.id === tempThread.id ? null : prev);
+      });
   }
 
   async function sendMessage() {
@@ -141,6 +167,22 @@ export default function ChatPage() {
     return d.toLocaleDateString();
   }
 
+  async function deleteThread(e: React.MouseEvent, threadId: string) {
+    e.stopPropagation();
+    if (threadId.startsWith('temp-')) {
+      setThreads(prev => prev.filter(t => t.id !== threadId));
+      if (activeThread?.id === threadId) setActiveThread(null);
+      return;
+    }
+    try {
+      await api.delete(`/threads/${threadId}`);
+      setThreads(prev => prev.filter(t => t.id !== threadId));
+      if (activeThread?.id === threadId) setActiveThread(null);
+    } catch {
+      // Optional: show toast or alert
+    }
+  }
+
   return (
     <div className="chat-layout">
       {/* SIDEBAR */}
@@ -150,7 +192,7 @@ export default function ChatPage() {
           <div className="brand-icon">
             <img src="/logo.svg" alt="Logo" width={22} height={22} />
           </div>
-          <span className="brand-name">Claw<span>Desktop</span></span>
+          <span className="brand-name">Claw<span>Desktop.VN</span></span>
         </div>
           <button className="btn-new-thread" onClick={createThread}>
             <Plus size={16} /> New Chat
@@ -175,8 +217,19 @@ export default function ChatPage() {
                   className={`thread-item ${activeThread?.id === t.id ? 'active' : ''}`}
                   onClick={() => setActiveThread(t)}
                 >
-                  <div className="thread-title">{t.title}</div>
-                  <div className="thread-meta">{formatThreadDate(t.updated_at)}</div>
+                  <div className="thread-item-content">
+                    <div className="thread-title">{t.title}</div>
+                    <div className="thread-meta">{formatThreadDate(t.updated_at)}</div>
+                  </div>
+                  <button
+                    type="button"
+                    className="thread-delete-btn"
+                    onClick={e => deleteThread(e, t.id)}
+                    title="Delete conversation"
+                    aria-label="Delete conversation"
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 </div>
               ))}
             </>
@@ -207,7 +260,7 @@ export default function ChatPage() {
         ) : (
           <>
             <div className="chat-header">
-              <div className="msg-avatar ai-avatar"><Bot size={15} color="#fff" /></div>
+              <div className="msg-avatar ai-avatar"><img src="/logo.svg" alt="Logo" width={22} height={22} /></div>
               <div className="chat-header-info">
                 <div className="chat-header-title">{activeThread.title}</div>
                 <div className="chat-header-status">
@@ -220,10 +273,37 @@ export default function ChatPage() {
               {messages.filter(m => m.role !== 'admin_draft').map(msg => (
                 <div key={msg.id} className={`message-row ${msg.role === 'user' ? 'user-row' : ''}`}>
                   <div className={`msg-avatar ${msg.role === 'user' ? 'user-avatar-icon' : 'ai-avatar'}`}>
-                    {msg.role === 'user' ? <User size={14} /> : <Bot size={14} color="#fff" />}
+                    {msg.role === 'user' ? <User size={14} /> : <img src="/logo.svg" alt="Logo" width={22} height={22} />}
                   </div>
                   <div className={`message-bubble ${msg.role === 'user' ? 'user-bubble' : 'ai-bubble'}`}>
-                    {msg.content}
+                    {msg.role === 'user' ? (
+                      msg.content
+                    ) : (
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          code({ node, className, children, ...props }: any) {
+                            const match = /language-(\w+)/.exec(className || '');
+                            return match ? (
+                              <SyntaxHighlighter
+                                style={vscDarkPlus as any}
+                                language={match[1]}
+                                PreTag="div"
+                                {...props}
+                              >
+                                {String(children).replace(/\n$/, '')}
+                              </SyntaxHighlighter>
+                            ) : (
+                              <code className={className} {...props}>
+                                {children}
+                              </code>
+                            );
+                          }
+                        }}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
+                    )}
                     <span className="message-time">{formatTime(msg.created_at)}</span>
                   </div>
                 </div>
@@ -232,7 +312,7 @@ export default function ChatPage() {
               {/* Typing indicator */}
               {isTyping && (
                 <div className="typing-row">
-                  <div className="msg-avatar ai-avatar"><Bot size={14} color="#fff" /></div>
+                  <div className="msg-avatar ai-avatar"><img src="/logo.svg" alt="Logo" width={22} height={22} /></div>
                   <div className="typing-bubble">
                     <div className="typing-dot" />
                     <div className="typing-dot" />
@@ -244,9 +324,32 @@ export default function ChatPage() {
               {/* Streaming text */}
               {isStreaming && streamingText && (
                 <div className="message-row">
-                  <div className="msg-avatar ai-avatar"><Bot size={14} color="#fff" /></div>
+                  <div className="msg-avatar ai-avatar"><img src="/logo.svg" alt="Logo" width={22} height={22} /></div>
                   <div className="message-bubble ai-bubble">
-                    {streamingText}
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        code({ node, className, children, ...props }: any) {
+                          const match = /language-(\w+)/.exec(className || '');
+                          return match ? (
+                            <SyntaxHighlighter
+                              style={vscDarkPlus as any}
+                              language={match[1]}
+                              PreTag="div"
+                              {...props}
+                            >
+                              {String(children).replace(/\n$/, '')}
+                            </SyntaxHighlighter>
+                          ) : (
+                            <code className={className} {...props}>
+                              {children}
+                            </code>
+                          );
+                        }
+                      }}
+                    >
+                      {streamingText}
+                    </ReactMarkdown>
                     <span className="streaming-cursor" />
                   </div>
                 </div>
@@ -260,7 +363,7 @@ export default function ChatPage() {
                 <textarea
                   ref={textareaRef}
                   className="chat-textarea"
-                  placeholder="Type a message..."
+                  placeholder={activeThread?.id?.startsWith('temp-') ? 'Creating conversation...' : 'Type a message...'}
                   rows={1}
                   value={input}
                   onChange={e => {
@@ -273,7 +376,7 @@ export default function ChatPage() {
                 <button
                   className="btn-send"
                   onClick={sendMessage}
-                  disabled={!input.trim() || sending || isTyping || isStreaming}
+                  disabled={!input.trim() || sending || isTyping || isStreaming || (activeThread?.id?.startsWith('temp-') ?? false)}
                 >
                   {sending ? <Loader2 size={16} style={{ animation: 'spin 0.7s linear infinite' }} /> : <Send size={16} />}
                 </button>

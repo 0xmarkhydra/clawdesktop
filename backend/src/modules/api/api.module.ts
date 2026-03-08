@@ -23,6 +23,7 @@ import { AdminController } from './controllers/admin.controller';
 import { AuthService } from './services/auth.service';
 import { ThreadService } from './services/thread.service';
 import { GeminiService } from '@/business/services/gemini.service';
+import { KnowledgeService } from '@/business/services/knowledge.service';
 
 // Guards
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -31,7 +32,7 @@ import { WebSocketGateway } from '../websocket/websocket.gateway';
 import { UserRepository, ThreadRepository, MessageRepository } from '@/database/repositories';
 
 const controllers = [HealthController, AuthController, ThreadController, AdminController];
-const services = [AuthService, ThreadService, GeminiService, WebSocketGateway];
+const services = [AuthService, ThreadService];
 
 @Module({
   imports: [

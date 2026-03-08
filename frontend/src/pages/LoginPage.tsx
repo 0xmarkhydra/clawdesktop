@@ -21,7 +21,7 @@ export default function LoginPage() {
       setAuth(res.data.user, res.data.access_token);
       navigate('/chat');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      setError(err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -31,14 +31,21 @@ export default function LoginPage() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-logo">
-          <div className="auth-logo-icon" style={{ background: 'transparent' }}>
-            <img src="/logo.svg" alt="Logo" width={28} height={28} />
-          </div>
-          <div className="auth-logo-text">Claw<span>Desktop</span></div>
+          <a
+            href="https://www.clawdesktop.vn/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="auth-logo-link"
+          >
+            <div className="auth-logo-icon" style={{ background: 'transparent' }}>
+              <img src="/logo.svg" alt="Logo" width={28} height={28} />
+            </div>
+            <div className="auth-logo-text">Claw<span>Desktop.VN</span></div>
+          </a>
         </div>
 
-        <h1 className="auth-title">Welcome back</h1>
-        <p className="auth-subtitle">Sign in to continue your conversation</p>
+        <h1 className="auth-title">Chào mừng trở lại</h1>
+        <p className="auth-subtitle">Đăng nhập để tiếp tục cuộc trò chuyện</p>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -49,7 +56,7 @@ export default function LoginPage() {
                 className="form-input"
                 style={{ paddingLeft: 36 }}
                 type="email"
-                placeholder="you@example.com"
+                placeholder="ban@vidu.com"
                 value={form.email}
                 onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                 required
@@ -58,7 +65,7 @@ export default function LoginPage() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Password</label>
+            <label className="form-label">Mật khẩu</label>
             <div style={{ position: 'relative' }}>
               <Lock size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input
@@ -81,12 +88,12 @@ export default function LoginPage() {
 
           <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: 4 }} disabled={loading}>
             {loading ? <Loader2 size={16} style={{ animation: 'spin 0.7s linear infinite' }} /> : null}
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </button>
         </form>
 
         <div className="auth-footer">
-          Don't have an account? <Link to="/register">Create one</Link>
+          Chưa có tài khoản? <Link to="/register">Tạo tài khoản</Link>
         </div>
       </div>
     </div>

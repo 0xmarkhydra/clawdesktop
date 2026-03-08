@@ -3,12 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import {
   ShieldCheck, Bot, User, Send, LogOut, MessageSquare, Loader2, RefreshCw, Bell
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../store/auth.store';
 import { connectSocket, joinThread, leaveThread } from '../../lib/socket';
 
 interface User_ { id: string; username: string; email: string; }
-interface Thread { id: string; title: string; user_id: string; updated_at: string; user: User_; }
+interface Thread { id: string; title: string; user_id: string; updated_at: string; user: User_; is_auto_reply: boolean; }
 interface Message { id: string; content: string; role: 'user' | 'ai' | 'admin_draft'; created_at: string; thread_id: string; }
 
 export default function AdminDashboard() {
@@ -21,6 +25,7 @@ export default function AdminDashboard() {
   const [sending, setSending] = useState(false);
   const [loadingThreads, setLoadingThreads] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [togglingBot, setTogglingBot] = useState(false);
   // Unread badges: { threadId -> count }
   const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
   const prevThreadId = useRef<string | null>(null);
@@ -146,6 +151,20 @@ export default function AdminDashboard() {
     }
   }
 
+  async function toggleAutoReply() {
+    if (!activeThread || togglingBot) return;
+    setTogglingBot(true);
+    try {
+      const newState = !activeThread.is_auto_reply;
+      await api.post(`/admin/threads/${activeThread.id}/toggle-auto-reply`, { is_auto_reply: newState });
+      
+      // Update local state
+      setActiveThread({ ...activeThread, is_auto_reply: newState });
+      setThreads(prev => prev.map(t => t.id === activeThread.id ? { ...t, is_auto_reply: newState } : t));
+    } catch { } // ignore
+    finally { setTogglingBot(false); }
+  }
+
   function handleLogout() { logout(); navigate('/admin/login'); }
 
   function formatTime(dateStr: string) {
@@ -187,7 +206,7 @@ export default function AdminDashboard() {
             <div className="brand-icon" style={{ background: 'transparent' }}>
               <img src="/logo.svg" alt="Logo" width={24} height={24} />
             </div>
-            <span className="brand-name">Claw<span>Desktop</span></span>
+            <span className="brand-name">Claw<span>Desktop.VN</span></span>
           </div>
           <button className="btn btn-ghost" style={{ width: '100%', fontSize: 12, gap: 6, marginTop: 8 }}
             onClick={() => loadThreads(true)}>
@@ -244,8 +263,11 @@ export default function AdminDashboard() {
                     {formatDate(t.updated_at)}
                   </span>
                 </div>
-                <div className="admin-thread-title" style={{ fontWeight: unread > 0 ? 600 : 400 }}>
-                  {t.title}
+                <div className="admin-thread-title" style={{ fontWeight: unread > 0 ? 600 : 400, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span>{t.title}</span>
+                  {t.is_auto_reply && (
+                    <Bot size={12} style={{ color: 'var(--accent)', marginLeft: 8 }} />
+                  )}
                 </div>
               </div>
             );
@@ -283,11 +305,34 @@ export default function AdminDashboard() {
               <div className="mini-avatar" style={{ width: 36, height: 36, borderRadius: 10, fontSize: 15 }}>
                 {activeThread.user?.username?.[0]?.toUpperCase()}
               </div>
-              <div className="chat-header-info">
+              <div className="chat-header-info" style={{ flex: 1 }}>
                 <div className="chat-header-title">{activeThread.title}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                   {activeThread.user?.username} · {activeThread.user?.email}
                 </div>
+              </div>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 12, color: activeThread.is_auto_reply ? 'var(--accent)' : 'var(--text-muted)', fontWeight: 600 }}>
+                  Bot Auto-Reply
+                </span>
+                <button
+                  className="btn-toggle-bot"
+                  disabled={togglingBot}
+                  onClick={toggleAutoReply}
+                  style={{
+                    width: 36, height: 20, borderRadius: 10, position: 'relative',
+                    background: activeThread.is_auto_reply ? 'var(--accent)' : 'var(--panel-bg-hover)',
+                    border: 'none', cursor: 'pointer', transition: 'background 0.2s'
+                  }}
+                  title={activeThread.is_auto_reply ? "Turn off Bot" : "Turn on Bot"}
+                >
+                  <div style={{
+                    width: 14, height: 14, borderRadius: 7, background: '#fff',
+                    position: 'absolute', top: 3, left: activeThread.is_auto_reply ? 19 : 3,
+                    transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
+                  }} />
+                </button>
               </div>
             </div>
 
@@ -310,7 +355,34 @@ export default function AdminDashboard() {
                         📝 Draft gốc của admin
                       </div>
                     )}
-                    {msg.content}
+                    {msg.role === 'user' || msg.role === 'admin_draft' ? (
+                      msg.content
+                    ) : (
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          code({ node, className, children, ...props }: any) {
+                            const match = /language-(\w+)/.exec(className || '');
+                            return match ? (
+                              <SyntaxHighlighter
+                                style={vscDarkPlus as any}
+                                language={match[1]}
+                                PreTag="div"
+                                {...props}
+                              >
+                                {String(children).replace(/\n$/, '')}
+                              </SyntaxHighlighter>
+                            ) : (
+                              <code className={className} {...props}>
+                                {children}
+                              </code>
+                            );
+                          }
+                        }}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
+                    )}
                     <span className="message-time">{formatTime(msg.created_at)}</span>
                   </div>
                 </div>
@@ -321,12 +393,12 @@ export default function AdminDashboard() {
             {/* REPLY AREA */}
             <div className="admin-reply-area">
               <div className="admin-reply-label">
-                Tin nhắn của bạn → <span>AI sẽ chuyển giọng</span>
+                Tin nhắn của bạn → <span>AI sẽ chuyển giọng (Ưu tiên Tiếng Việt)</span>
               </div>
               <div className="chat-input-wrapper">
                 <textarea
                   className="chat-textarea"
-                  placeholder="Gõ reply... AI sẽ transform thành giọng tự nhiên"
+                  placeholder="Gõ reply... AI sẽ transform thành giọng tự nhiên (tiếng Việt)"
                   rows={1}
                   value={replyInput}
                   onChange={e => {

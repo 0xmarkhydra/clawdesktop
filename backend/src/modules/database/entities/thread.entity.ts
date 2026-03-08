@@ -26,4 +26,7 @@ export class ThreadEntity extends BaseEntity {
     default: ThreadStatus.ACTIVE,
   })
   status: ThreadStatus;
+
+  @Column({ default: true })
+  is_auto_reply: boolean;
 }

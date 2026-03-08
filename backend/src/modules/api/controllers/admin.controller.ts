@@ -56,6 +56,15 @@ export class AdminController {
     return this.threadService.getThreadMessages(id, +page, +take);
   }
 
+  @Post('threads/:id/toggle-auto-reply')
+  @ApiOperation({ summary: '[Admin] Toggle bot auto reply for a thread' })
+  async toggleAutoReply(
+    @Param('id') threadId: string,
+    @Body() body: { is_auto_reply: boolean },
+  ) {
+    return this.threadService.toggleAutoReply(threadId, body.is_auto_reply);
+  }
+
   @Post('threads/:id/reply')
   @ApiOperation({ summary: '[Admin] Reply to user — triggers DeepSeek stream to user' })
   async adminReply(

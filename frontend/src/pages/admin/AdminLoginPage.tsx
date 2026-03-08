@@ -33,7 +33,7 @@ export default function AdminLoginPage() {
           <div className="auth-logo-icon" style={{ background: 'transparent' }}>
             <img src="/logo.svg" alt="Logo" width={28} height={28} />
           </div>
-          <div className="auth-logo-text">Claw<span>Desktop</span> <span style={{ color: '#f87171', fontSize: 12, fontWeight: 400 }}>Admin</span></div>
+          <div className="auth-logo-text">Claw<span>Desktop.VN</span> <span style={{ color: '#f87171', fontSize: 12, fontWeight: 400 }}>Admin</span></div>
         </div>
 
         <h1 className="auth-title">Admin Portal</h1>
