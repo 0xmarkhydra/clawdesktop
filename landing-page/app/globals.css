@@ -1,0 +1,155 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* OpenClaw-style theme – dark cosmic, coral + teal */
+  --background: #0d0d0d;
+  --foreground: #f0f0f0;
+  --card: #141414;
+  --card-foreground: #f0f0f0;
+  --popover: #141414;
+  --popover-foreground: #f0f0f0;
+  --primary: #5FD9CB;
+  --primary-foreground: #0d0d0d;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #f0f0f0;
+  --muted: #1a1a1a;
+  --muted-foreground: #888888;
+  --accent: #E55F4D;
+  --accent-foreground: #f0f0f0;
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: #262626;
+  --input: #1a1a1a;
+  --ring: #5FD9CB;
+  --radius: 0.625rem;
+  /* OpenClaw brand: teal (Claw) + coral (Open / crab) */
+  --neon-green: #5FD9CB;
+  --neon-purple: #E55F4D;
+  --openclaw-coral: #E55F4D;
+  --openclaw-teal: #5FD9CB;
+  --coral-bright: #E55F4D;
+  --logo-gradient-start: #ED6A5A;
+  --logo-gradient-end: #CC4E3F;
+  --surface: #141414;
+  --surface-2: #1a1a1a;
+}
+
+@theme inline {
+  --font-sans: var(--font-inter), 'Inter', sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --color-neon-green: var(--neon-green);
+  --color-neon-purple: var(--neon-purple);
+  --color-openclaw-coral: var(--openclaw-coral);
+  --color-openclaw-teal: var(--openclaw-teal);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .neon-green {
+    color: var(--neon-green);
+  }
+  .neon-purple {
+    color: var(--neon-purple);
+  }
+  .neon-border-green {
+    border-color: var(--neon-green);
+    box-shadow: 0 0 12px rgba(95,217,203,0.3);
+  }
+  .neon-border-purple {
+    border-color: var(--neon-purple);
+    box-shadow: 0 0 12px rgba(229,95,77,0.3);
+  }
+  .glow-green {
+    text-shadow: 0 0 20px rgba(95,217,203,0.6);
+  }
+  .glow-purple {
+    text-shadow: 0 0 20px rgba(229,95,77,0.6);
+  }
+  .bg-neon-green {
+    background-color: var(--neon-green);
+  }
+  .bg-neon-purple {
+    background-color: var(--neon-purple);
+  }
+  /* OpenClaw gradient text: coral → teal */
+  .text-openclaw-gradient {
+    background: linear-gradient(90deg, var(--openclaw-coral) 0%, var(--openclaw-teal) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  /* Subtle cosmic speckles for background */
+  .bg-cosmic-speckles {
+    background-image: radial-gradient(1px 1px at 20px 30px, rgba(229,95,77,0.15), transparent),
+      radial-gradient(1px 1px at 40px 70px, rgba(95,217,203,0.12), transparent),
+      radial-gradient(1px 1px at 50px 160px, rgba(229,95,77,0.1), transparent),
+      radial-gradient(1px 1px at 90px 40px, rgba(95,217,203,0.15), transparent),
+      radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.08), transparent);
+    background-size: 200px 200px;
+  }
+  .fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate-delay-100 { animation-delay: 0.1s; }
+  .animate-delay-200 { animation-delay: 0.2s; }
+  .animate-delay-300 { animation-delay: 0.3s; }
+  .animate-delay-400 { animation-delay: 0.4s; }
+  .animate-delay-500 { animation-delay: 0.5s; }
+}
