@@ -7,7 +7,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { api } from '../lib/api';
 import { useAuthStore } from '../store/auth.store';
-import { connectSocket, disconnectSocket, joinThread, leaveThread } from '../lib/socket';
+import { connectSocket, disconnectSocket, joinThread, leaveThread, setReconnectCallback } from '../lib/socket';
 import ChatEmptyState from '../components/ChatEmptyState';
 import logoIcon from '../assets/logo.svg';
 
@@ -34,7 +34,9 @@ export default function ChatPage() {
   const [loadingMoreThreads, setLoadingMoreThreads] = useState(false);
   const [pagination, setPagination] = useState<{ current_page: number; total_pages: number; take: number; total: number } | null>(null);
   const [isCreatingThread, setIsCreatingThread] = useState(false);
+  const [isOffline, setIsOffline] = useState(false);
   const [, startTransition] = useTransition();
+  const activeThreadRef = useRef<Thread | null>(null);
   const prevThreadId = useRef<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -103,14 +105,38 @@ export default function ChatPage() {
       setStreamingText('');
     });
 
+    // Offline / reconnecting indicator
+    socket.on('disconnect', () => setIsOffline(true));
+    socket.on('connect', () => setIsOffline(false));
+
+    // Sau khi reconnect: re-fetch messages để bù khoảng offline
+    setReconnectCallback(() => {
+      const thread = activeThreadRef.current;
+      if (thread && !thread.id.startsWith('temp-')) {
+        setIsTyping(false);
+        setIsStreaming(false);
+        setStreamingText('');
+        api.get(`/threads/${thread.id}/messages`).then(res => {
+          setMessages(res.data.data || []);
+        });
+      }
+    });
+
     return () => {
       socket.off('thread:typing');
       socket.off('thread:stream');
       socket.off('thread:stream:done');
       socket.off('thread:stream:error');
+      socket.off('disconnect');
+      socket.off('connect');
       disconnectSocket();
     };
   }, []);
+
+  // Sync activeThread vào ref để dùng trong reconnect callback
+  useEffect(() => {
+    activeThreadRef.current = activeThread;
+  }, [activeThread]);
 
   // Switch threads
   useEffect(() => {
@@ -219,6 +245,16 @@ export default function ChatPage() {
 
   return (
     <div className="chat-layout">
+      {/* Offline/Reconnecting Banner */}
+      {isOffline && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
+          background: '#f59e0b', color: '#1c1917',
+          textAlign: 'center', padding: '8px 16px', fontSize: 13, fontWeight: 600,
+        }}>
+          ⚡ Mất kết nối — đang tự động kết nối lại...
+        </div>
+      )}
       {/* SIDEBAR */}
       <aside className="sidebar">
         <div className="sidebar-header">
