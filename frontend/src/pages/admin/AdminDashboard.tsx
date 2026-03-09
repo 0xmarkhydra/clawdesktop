@@ -8,6 +8,8 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { api } from '../../lib/api';
+
+import logoIcon from '../../assets/logo.svg';
 import { useAuthStore } from '../../store/auth.store';
 import { connectSocket, joinThread, leaveThread } from '../../lib/socket';
 
@@ -230,10 +232,10 @@ export default function AdminDashboard() {
             )}
           </div>
           <div className="sidebar-brand">
-            <div className="brand-icon" style={{ background: 'transparent' }}>
-              <img src="/logo.svg" alt="Logo" width={24} height={24} />
+            <div className="flex items-center gap-2">
+              <img src={logoIcon} alt="Logo" width={24} height={24} />
+              <span className="font-semibold text-white">ClawDesktop Admin</span>
             </div>
-            <span className="brand-name">Claw<span>Desktop.VN</span></span>
           </div>
           <button className="btn btn-ghost" style={{ width: '100%', fontSize: 12, gap: 6, marginTop: 8 }}
             onClick={() => loadThreads(true)}>

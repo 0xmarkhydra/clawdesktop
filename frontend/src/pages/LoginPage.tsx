@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuthStore } from '../store/auth.store';
+import logoIcon from '../assets/logo.svg';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ export default function LoginPage() {
             className="auth-logo-link"
           >
             <div className="auth-logo-icon" style={{ background: 'transparent' }}>
-              <img src="/logo.svg" alt="Logo" width={28} height={28} />
+              <img src={logoIcon} alt="Logo" width={28} height={28} />
             </div>
             <div className="auth-logo-text">Claw<span>Desktop.VN</span></div>
           </a>

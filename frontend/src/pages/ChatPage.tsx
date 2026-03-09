@@ -9,6 +9,7 @@ import { api } from '../lib/api';
 import { useAuthStore } from '../store/auth.store';
 import { connectSocket, disconnectSocket, joinThread, leaveThread } from '../lib/socket';
 import ChatEmptyState from '../components/ChatEmptyState';
+import logoIcon from '../assets/logo.svg';
 
 interface Thread { id: string; title: string; updated_at: string; }
 interface Message { id: string; content: string; role: 'user' | 'ai' | 'admin_draft'; created_at: string; thread_id?: string; }
@@ -223,7 +224,7 @@ export default function ChatPage() {
         <div className="sidebar-header">
           <div className="sidebar-brand">
           <div className="brand-icon">
-            <img src="/logo.svg" alt="Logo" width={22} height={22} />
+            <img src={logoIcon} alt="Logo" width={22} height={22} />
           </div>
           <span className="brand-name">Claw<span>Desktop.VN</span></span>
         </div>
@@ -310,7 +311,7 @@ export default function ChatPage() {
         ) : (
           <>
             <div className="chat-header">
-              <div className="msg-avatar ai-avatar"><img src="/logo.svg" alt="Logo" width={22} height={22} /></div>
+              <div className="msg-avatar ai-avatar"><img src={logoIcon} alt="Logo" width={22} height={22} /></div>
               <div className="chat-header-info">
                 <div className="chat-header-title">{activeThread.title}</div>
                 <div className="chat-header-status">
@@ -331,7 +332,7 @@ export default function ChatPage() {
                     {visibleMessages.map(msg => (
                       <div key={msg.id} className={`message-row ${msg.role === 'user' ? 'user-row' : ''}`}>
                         <div className={`msg-avatar ${msg.role === 'user' ? 'user-avatar-icon' : 'ai-avatar'}`}>
-                          {msg.role === 'user' ? <User size={14} /> : <img src="/logo.svg" alt="Logo" width={22} height={22} />}
+                          {msg.role === 'user' ? <User size={14} /> : <img src={logoIcon} alt="Logo" width={22} height={22} />}
                         </div>
                         <div className={`message-bubble ${msg.role === 'user' ? 'user-bubble' : 'ai-bubble'}`}>
                           {msg.role === 'user' ? (
@@ -369,7 +370,7 @@ export default function ChatPage() {
 
                     {isTyping && (
                       <div className="typing-row">
-                        <div className="msg-avatar ai-avatar"><img src="/logo.svg" alt="Logo" width={22} height={22} /></div>
+                        <div className="msg-avatar ai-avatar"><img src={logoIcon} alt="Logo" width={22} height={22} /></div>
                         <div className="typing-bubble">
                           <div className="typing-dot" />
                           <div className="typing-dot" />
@@ -380,7 +381,7 @@ export default function ChatPage() {
 
                     {isStreaming && streamingText && (
                       <div className="message-row">
-                        <div className="msg-avatar ai-avatar"><img src="/logo.svg" alt="Logo" width={22} height={22} /></div>
+                        <div className="msg-avatar ai-avatar"><img src={logoIcon} alt="Logo" width={22} height={22} /></div>
                         <div className="message-bubble ai-bubble">
                           <ReactMarkdown
                             remarkPlugins={[remarkGfm]}

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/auth.store';
 import { getDomainMode, getAdminOrigin } from './lib/domain';
 import LoginPage from './pages/LoginPage';
@@ -100,11 +100,14 @@ function AppRoutes() {
   );
 }
 
+const isElectron = window.location.protocol === 'file:';
+const Router = isElectron ? HashRouter : BrowserRouter;
+
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <AppRoutes />
-    </BrowserRouter>
+    </Router>
   );
 }
 
