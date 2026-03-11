@@ -620,7 +620,6 @@ export default function ChatPage() {
                   onClick={() => fileInputRef.current?.click()}
                   disabled={activeThread?.id?.startsWith('temp-') ?? false}
                   title="Attach image (or paste / drag & drop)"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: pendingImage ? 'var(--accent)' : 'var(--text-muted)', padding: '0 6px', display: 'flex', alignItems: 'center', flexShrink: 0 }}
                 >
                   <Paperclip size={16} />
                 </button>
