@@ -3,14 +3,20 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 
+const platforms = [
+  { label: "macOS", available: true },
+  { label: "Windows", available: false },
+  { label: "Linux", available: false },
+];
+
 const plans = [
   {
-    name: "Miễn Phí",
+    name: "Ứng dụng Desktop",
     price: "0đ",
     period: "mãi mãi",
     highlight: true,
     badge: null,
-    desc: "OpenClaw Desktop hoàn toàn miễn phí – đủ tính năng cho mọi người. Hiện tại hỗ trợ cài đặt trên macOS.",
+    desc: "Cài đặt một lần, dùng mãi mãi. Chạy trực tiếp trên máy, dữ liệu thuộc về bạn.",
     features: [
       "Cài đặt 1 click (macOS)",
       "100+ skill (Zalo, Shopee, ngân hàng...)",
@@ -24,6 +30,30 @@ const plans = [
     cta: "Tải ClawDesktop cho macOS",
     ctaStyle: "bg-neon-green text-black font-bold hover:opacity-90 hover:shadow-[0_0_30px_rgba(95,217,203,0.5)]",
     href: `${process.env.NEXT_PUBLIC_API_URL}/upload/clawdesktop-mac`,
+    showPlatforms: true,
+    isWeb: false,
+  },
+  {
+    name: "Truy cập Web",
+    price: "0đ",
+    period: "mãi mãi",
+    highlight: false,
+    badge: "Mới",
+    desc: "Dùng ngay trên trình duyệt, không cần cài đặt. Hoạt động trên mọi thiết bị, mọi hệ điều hành.",
+    features: [
+      "Không cần cài đặt",
+      "Mọi thiết bị, mọi trình duyệt",
+      "100+ skill sẵn dùng",
+      "Giao diện tiếng Việt 100%",
+      "Cộng đồng Zalo hỗ trợ",
+      "Skill mới cập nhật liên tục",
+    ],
+    disabled: [] as string[],
+    cta: "Truy cập Web ngay",
+    ctaStyle: "border border-neon-purple text-neon-purple font-bold hover:bg-neon-purple/10 hover:shadow-[0_0_20px_rgba(139,92,246,0.3)]",
+    href: "https://app.clawdesktop.vn/",
+    showPlatforms: false,
+    isWeb: true,
   },
 ];
 
@@ -49,18 +79,18 @@ export default function Pricing() {
 
   return (
     <section id="pricing" className="py-16 md:py-24">
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
-          <span className="text-sm font-semibold uppercase tracking-widest neon-purple">Tải xuống</span>
+          <span className="text-sm font-semibold uppercase tracking-widest neon-purple">Tải xuống & Truy cập</span>
           <h2 className="mt-3 text-balance text-3xl font-extrabold text-foreground sm:text-4xl">
             Hoàn toàn <span className="neon-green">miễn phí</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl leading-relaxed text-muted-foreground">
-            Tải xuống và dùng ngay. Không phí, mã nguồn mở.
+            Tải về máy hoặc dùng thẳng trên web. Không mất phí, mã nguồn mở.
           </p>
         </div>
 
-        <div ref={ref} className="mx-auto max-w-md">
+        <div ref={ref} className="grid gap-6 sm:grid-cols-2">
           {plans.map((plan) => (
             <div
               key={plan.name}
@@ -71,7 +101,7 @@ export default function Pricing() {
               }`}
             >
               {plan.badge && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-neon-green px-4 py-1 text-xs font-bold text-black">
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-neon-purple px-4 py-1 text-xs font-bold text-white">
                   {plan.badge}
                 </div>
               )}
@@ -90,7 +120,7 @@ export default function Pricing() {
               <ul className="mb-6 flex-1 space-y-3">
                 {plan.features.map((f) => (
                   <li key={f} className="flex items-start gap-3 text-sm">
-                    <svg viewBox="0 0 20 20" fill="currentColor" className="mt-0.5 h-5 w-5 flex-shrink-0 neon-green" aria-hidden="true">
+                    <svg viewBox="0 0 20 20" fill="currentColor" className={`mt-0.5 h-5 w-5 flex-shrink-0 ${plan.highlight ? "neon-green" : "neon-purple"}`} aria-hidden="true">
                       <path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clipRule="evenodd" />
                     </svg>
                     <span className="text-foreground/90">{f}</span>
@@ -106,8 +136,26 @@ export default function Pricing() {
                 ))}
               </ul>
 
+              {/* Platform availability badges (Desktop only) */}
+              {plan.showPlatforms && (
+                <div className="mb-5 flex items-center gap-2">
+                  {platforms.map((p) =>
+                    p.available ? (
+                      <span key={p.label} className="rounded-full border border-neon-green/40 bg-neon-green/10 px-3 py-1 text-[11px] font-semibold text-neon-green">
+                        {p.label} ✓
+                      </span>
+                    ) : (
+                      <span key={p.label} className="rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-[11px] font-semibold text-amber-400">
+                        {p.label} · Sắp có
+                      </span>
+                    )
+                  )}
+                </div>
+              )}
+
               <Link
                 href={plan.href}
+                {...(plan.isWeb ? { target: "_blank", rel: "noopener noreferrer" } : { prefetch: false })}
                 className={`w-full rounded-full py-3.5 text-center text-sm transition-all ${plan.ctaStyle}`}
               >
                 {plan.cta}
