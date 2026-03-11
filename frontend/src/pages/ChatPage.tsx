@@ -446,7 +446,7 @@ export default function ChatPage() {
           <img
             src={lightboxUrl}
             alt="full size"
-            style={{ maxWidth: '90vw', maxHeight: '90vh', borderRadius: 12, boxShadow: '0 0 60px rgba(0,0,0,0.6)', objectFit: 'contain' }}
+            style={{ maxWidth: '96vw', maxHeight: '96vh', borderRadius: 12, boxShadow: '0 0 60px rgba(0,0,0,0.6)', objectFit: 'contain' }}
             onClick={e => e.stopPropagation()}
           />
         </div>
@@ -487,7 +487,7 @@ export default function ChatPage() {
                             <img
                               src={msg.image_url}
                               alt="attachment"
-                              style={{ maxWidth: 220, maxHeight: 220, borderRadius: 8, display: 'block', cursor: 'zoom-in', marginBottom: msg.content ? 8 : 0 }}
+                              style={{ maxWidth: 320, maxHeight: 320, borderRadius: 10, display: 'block', cursor: 'zoom-in', marginBottom: msg.content ? 10 : 0 }}
                               onClick={() => setLightboxUrl(msg.image_url!)}
                             />
                           )}
