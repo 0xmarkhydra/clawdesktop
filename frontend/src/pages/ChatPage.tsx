@@ -46,6 +46,7 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const typingClearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Auto scroll to bottom
   const scrollToBottom = useCallback(() => {
@@ -88,9 +89,13 @@ export default function ChatPage() {
       setIsTyping(true);
       setStreamingText('');
       setIsStreaming(false);
+      // Auto-clear typing indicator after 3s in case admin stops typing without sending
+      if (typingClearTimerRef.current) clearTimeout(typingClearTimerRef.current);
+      typingClearTimerRef.current = setTimeout(() => setIsTyping(false), 3000);
     });
 
     socket.on('thread:stream', (data: { chunk: string }) => {
+      if (typingClearTimerRef.current) clearTimeout(typingClearTimerRef.current);
       setIsTyping(false);
       setIsStreaming(true);
       setStreamingText(prev => prev + data.chunk);

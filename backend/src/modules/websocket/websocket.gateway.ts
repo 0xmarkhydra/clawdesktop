@@ -59,6 +59,15 @@ export class WebSocketGateway {
     client.leave(`thread:${data.threadId}`);
   }
 
+  /** Admin typing in compose box → forward typing indicator to user in that thread */
+  @SubscribeMessage('admin:typing')
+  handleAdminTyping(
+    @ConnectedSocket() _client: Socket,
+    @MessageBody() data: { threadId: string },
+  ) {
+    this.server.to(`thread:${data.threadId}`).emit('thread:typing', { threadId: data.threadId });
+  }
+
   /** Emit typing indicator — user thấy "AI đang gõ..." */
   emitTyping(threadId: string) {
     this.server.to(`thread:${threadId}`).emit('thread:typing', { threadId });

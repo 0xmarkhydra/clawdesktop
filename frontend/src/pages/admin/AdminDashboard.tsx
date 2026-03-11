@@ -47,6 +47,7 @@ export default function AdminDashboard() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const typingDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Khởi tạo audio
   useEffect(() => {
@@ -604,6 +605,12 @@ export default function AdminDashboard() {
                     setReplyInput(e.target.value);
                     e.target.style.height = 'auto';
                     e.target.style.height = Math.min(e.target.scrollHeight, 140) + 'px';
+                    if (activeThread) {
+                      if (typingDebounceRef.current) clearTimeout(typingDebounceRef.current);
+                      typingDebounceRef.current = setTimeout(() => {
+                        connectSocket().emit('admin:typing', { threadId: activeThread.id });
+                      }, 300);
+                    }
                   }}
                   onKeyDown={handleKeyDown}
                   onPaste={handlePaste}
