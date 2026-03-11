@@ -73,9 +73,9 @@ export class ThreadController {
   async sendMessage(
     @Param('id') id: string,
     @Request() req,
-    @Body() body: { content: string },
+    @Body() body: { content?: string; image_url?: string },
   ) {
-    const message = await this.threadService.createUserMessage(id, req.user.sub, body.content);
+    const message = await this.threadService.createUserMessage(id, req.user.sub, body.content || '', body.image_url);
 
     // Lấy thread info để gửi kèm notification cho admin
     const thread = await this.threadService.getThread(id);

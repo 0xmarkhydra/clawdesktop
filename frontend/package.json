@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "clawdesktop",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,23 +13,38 @@
     "electron:build:win": "vite build && electron-builder --win",
     "electron:build:mac:intel": "vite build && electron-builder --mac --x64",
     "electron:build:mac:arm": "vite build && electron-builder --mac --arm64",
-    "electron:build:all": "vite build && electron-builder -mw",
+    "electron:build:linux": "vite build && electron-builder --linux",
+    "electron:build:all": "vite build && electron-builder -mwl",
     "build:desktop:all": "./build-desktop.sh"
   },
   "build": {
     "appId": "com.clawdesktop.app",
     "productName": "ClawDesktop",
     "artifactName": "${productName}-${os}-${arch}.${ext}",
+    "files": [
+      "dist/**/*",
+      "!dist/*.dmg",
+      "!dist/*.exe",
+      "!dist/*.AppImage",
+      "!dist/*.blockmap",
+      "electron/**/*"
+    ],
     "directories": {
       "output": "release"
     },
     "mac": {
       "target": ["dmg"],
-      "icon": "public/logo.png"
+      "icon": "public/logo.png",
+      "category": "public.app-category.productivity"
     },
     "win": {
       "target": ["nsis"],
       "icon": "public/logo.png"
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "icon": "public/logo.png",
+      "category": "Network"
     }
   },
   "dependencies": {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useTransition } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Send, LogOut, User, Loader2, Trash2 } from 'lucide-react';
+import { Plus, Send, LogOut, User, Loader2, Trash2, Paperclip, X } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -12,7 +12,8 @@ import ChatEmptyState from '../components/ChatEmptyState';
 import logoIcon from '../assets/logo.svg';
 
 interface Thread { id: string; title: string; updated_at: string; }
-interface Message { id: string; content: string; role: 'user' | 'ai' | 'admin_draft'; created_at: string; thread_id?: string; }
+interface Message { id: string; content: string; role: 'user' | 'ai' | 'admin_draft'; created_at: string; thread_id?: string; image_url?: string | null; }
+interface PendingImage { file: File; previewUrl: string; }
 
 const THREADS_PAGE_SIZE = 10;
 function sortThreadsByUpdatedAt<T extends { updated_at: string }>(list: T[]): T[] {
@@ -35,11 +36,16 @@ export default function ChatPage() {
   const [pagination, setPagination] = useState<{ current_page: number; total_pages: number; take: number; total: number } | null>(null);
   const [isCreatingThread, setIsCreatingThread] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
+  const [pendingImage, setPendingImage] = useState<PendingImage | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [, startTransition] = useTransition();
   const activeThreadRef = useRef<Thread | null>(null);
   const prevThreadId = useRef<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Auto scroll to bottom
   const scrollToBottom = useCallback(() => {
@@ -187,18 +193,70 @@ export default function ChatPage() {
       .finally(() => setIsCreatingThread(false));
   }, [isCreatingThread]);
 
+  async function uploadImageFile(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await api.post('/upload/image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data.url as string;
+  }
+
+  function attachImageFile(file: File) {
+    if (!file.type.startsWith('image/')) return;
+    const previewUrl = URL.createObjectURL(file);
+    setPendingImage(prev => {
+      if (prev) URL.revokeObjectURL(prev.previewUrl);
+      return { file, previewUrl };
+    });
+  }
+
+  function removePendingImage() {
+    if (pendingImage) URL.revokeObjectURL(pendingImage.previewUrl);
+    setPendingImage(null);
+  }
+
   async function sendMessage() {
-    if (!input.trim() || !activeThread || sending) return;
+    if (!input.trim() && !pendingImage) return;
+    if (!activeThread || sending) return;
+
     const content = input.trim();
+    const imageToSend = pendingImage;
+
     setInput('');
+    setPendingImage(null);
     setSending(true);
-    // Optimistic update
-    const tempMsg: Message = { id: Date.now().toString(), content, role: 'user', created_at: new Date().toISOString() };
-    setMessages(prev => [...prev, tempMsg]);
+
+    let imageUrl: string | undefined;
+
     try {
-      await api.post(`/threads/${activeThread.id}/messages`, { content });
-    } catch { /* keep optimistic */ }
-    finally { setSending(false); }
+      if (imageToSend) {
+        setUploadingImage(true);
+        imageUrl = await uploadImageFile(imageToSend.file);
+        URL.revokeObjectURL(imageToSend.previewUrl);
+        setUploadingImage(false);
+      }
+
+      // Optimistic update
+      const tempMsg: Message = {
+        id: Date.now().toString(),
+        content,
+        role: 'user',
+        created_at: new Date().toISOString(),
+        image_url: imageUrl || null,
+      };
+      setMessages(prev => [...prev, tempMsg]);
+
+      await api.post(`/threads/${activeThread.id}/messages`, {
+        content,
+        image_url: imageUrl,
+      });
+    } catch {
+      /* keep optimistic */
+    } finally {
+      setSending(false);
+      setUploadingImage(false);
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -206,6 +264,38 @@ export default function ChatPage() {
       e.preventDefault();
       sendMessage();
     }
+  }
+
+  function handlePaste(e: React.ClipboardEvent) {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of Array.from(items)) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (file) attachImageFile(file);
+        break;
+      }
+    }
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(true);
+  }
+
+  function handleDragLeave(e: React.DragEvent) {
+    e.preventDefault();
+    setIsDraggingOver(false);
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) attachImageFile(file);
   }
 
   function handleLogout() {
@@ -340,6 +430,28 @@ export default function ChatPage() {
         </div>
       </aside>
 
+      {/* Lightbox */}
+      {lightboxUrl && (
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.88)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-out' }}
+          onClick={() => setLightboxUrl(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxUrl(null)}
+            style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center' }}
+          >
+            <X size={20} />
+          </button>
+          <img
+            src={lightboxUrl}
+            alt="full size"
+            style={{ maxWidth: '90vw', maxHeight: '90vh', borderRadius: 12, boxShadow: '0 0 60px rgba(0,0,0,0.6)', objectFit: 'contain' }}
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
+      )}
+
       {/* CHAT AREA */}
       <main className="chat-area">
         {!activeThread ? (
@@ -371,10 +483,18 @@ export default function ChatPage() {
                           {msg.role === 'user' ? <User size={14} /> : <img src={logoIcon} alt="Logo" width={22} height={22} />}
                         </div>
                         <div className={`message-bubble ${msg.role === 'user' ? 'user-bubble' : 'ai-bubble'}`}>
+                          {msg.image_url && (
+                            <img
+                              src={msg.image_url}
+                              alt="attachment"
+                              style={{ maxWidth: 220, maxHeight: 220, borderRadius: 8, display: 'block', cursor: 'zoom-in', marginBottom: msg.content ? 8 : 0 }}
+                              onClick={() => setLightboxUrl(msg.image_url!)}
+                            />
+                          )}
                           {msg.role === 'user' ? (
                             msg.content
                           ) : (
-                            <ReactMarkdown
+                            msg.content && <ReactMarkdown
                               remarkPlugins={[remarkGfm]}
                               components={{
                                 code({ node, className, children, ...props }: any) {
@@ -455,11 +575,60 @@ export default function ChatPage() {
             </div>
 
             <div className="chat-input-area">
-              <div className="chat-input-wrapper">
+              {/* Image preview bar */}
+              {pendingImage && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, padding: '6px 10px', background: 'var(--panel-bg)', borderRadius: 8, border: '1px solid var(--border)' }}>
+                  <img src={pendingImage.previewUrl} alt="preview" style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} />
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {pendingImage.file.name}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={removePendingImage}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 2, borderRadius: 4, display: 'flex', alignItems: 'center' }}
+                    title="Remove image"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
+
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) attachImageFile(file);
+                  e.target.value = '';
+                }}
+              />
+
+              <div
+                className="chat-input-wrapper"
+                style={isDraggingOver ? { outline: '2px dashed var(--accent)', outlineOffset: 2 } : {}}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                {/* Upload button */}
+                <button
+                  type="button"
+                  className="btn-attach"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={activeThread?.id?.startsWith('temp-') ?? false}
+                  title="Attach image (or paste / drag & drop)"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: pendingImage ? 'var(--accent)' : 'var(--text-muted)', padding: '0 6px', display: 'flex', alignItems: 'center', flexShrink: 0 }}
+                >
+                  <Paperclip size={16} />
+                </button>
+
                 <textarea
                   ref={textareaRef}
                   className="chat-textarea"
-                  placeholder={activeThread?.id?.startsWith('temp-') ? 'Creating conversation...' : 'Type a message...'}
+                  placeholder={activeThread?.id?.startsWith('temp-') ? 'Creating conversation...' : 'Type a message... (paste or drag image here)'}
                   rows={1}
                   value={input}
                   onChange={e => {
@@ -468,17 +637,18 @@ export default function ChatPage() {
                     e.target.style.height = Math.min(e.target.scrollHeight, 140) + 'px';
                   }}
                   onKeyDown={handleKeyDown}
+                  onPaste={handlePaste}
                 />
                 <button
                   className="btn-send"
                   onClick={sendMessage}
-                  disabled={!input.trim() || sending || isTyping || isStreaming || (activeThread?.id?.startsWith('temp-') ?? false)}
+                  disabled={(!input.trim() && !pendingImage) || sending || uploadingImage || isTyping || isStreaming || (activeThread?.id?.startsWith('temp-') ?? false)}
                 >
-                  {sending ? <Loader2 size={16} style={{ animation: 'spin 0.7s linear infinite' }} /> : <Send size={16} />}
+                  {sending || uploadingImage ? <Loader2 size={16} style={{ animation: 'spin 0.7s linear infinite' }} /> : <Send size={16} />}
                 </button>
               </div>
               <div style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', marginTop: 8 }}>
-                Powered by Claw AI • Press Enter to send, Shift+Enter for new line
+                Powered by Claw AI • Enter to send • Paste or drag image to attach
               </div>
             </div>
           </>

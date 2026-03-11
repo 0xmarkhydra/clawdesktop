@@ -19,6 +19,9 @@ import { AuthController } from './controllers/auth.controller';
 import { ThreadController } from './controllers/thread.controller';
 import { AdminController } from './controllers/admin.controller';
 
+// Upload
+import { UploadModule } from '@/upload/upload.module';
+
 // Services
 import { AuthService } from './services/auth.service';
 import { ThreadService } from './services/thread.service';
@@ -44,6 +47,7 @@ const services = [AuthService, ThreadService];
     QueueModule,
     BusinessModule,
     WebSocketModule,
+    UploadModule,
     CacheModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

@@ -69,12 +69,22 @@ export class AdminController {
   @ApiOperation({ summary: '[Admin] Reply to user — triggers DeepSeek stream to user' })
   async adminReply(
     @Param('id') threadId: string,
-    @Body() body: { message: string },
+    @Body() body: { message?: string; image_url?: string },
     @Request() req,
     @Res() res: Response,
   ) {
     // 1. Verify thread exists
     await this.threadService.getThread(threadId);
+
+    const messageText = body.message || '';
+    const imageUrl = body.image_url;
+
+    // If admin sends image-only (no text), skip Gemini transform and send directly
+    if (!messageText && imageUrl) {
+      const savedMessage = await this.threadService.saveAiMessage(threadId, '', '', imageUrl);
+      this.wsGateway.emitStreamDone(threadId, savedMessage);
+      return res.status(200).json({ success: true, message: savedMessage });
+    }
 
     // 2. Emit typing indicator to user
     this.wsGateway.emitTyping(threadId);
@@ -83,16 +93,12 @@ export class AdminController {
     const sendFallback = async () => {
       console.warn('[AdminController] DeepSeek unavailable — sending admin message directly');
       // Stream từng chữ của tin nhắn gốc để giữ UX streaming
-      const words = body.message.split('');
+      const words = messageText.split('');
       for (const char of words) {
         this.wsGateway.emitStreamChunk(threadId, char);
-        await new Promise(r => setTimeout(r, 8)); // delay nhỏ để tạo hiệu ứng typing
+        await new Promise(r => setTimeout(r, 8));
       }
-      const savedMessage = await this.threadService.saveAiMessage(
-        threadId,
-        body.message,
-        body.message, // fallback: content = admin message gốc
-      );
+      const savedMessage = await this.threadService.saveAiMessage(threadId, messageText, messageText, imageUrl);
       this.wsGateway.emitStreamDone(threadId, savedMessage);
       if (!res.headersSent) {
         res.status(200).json({ success: true, message: savedMessage, fallback: true });
@@ -109,7 +115,7 @@ export class AdminController {
 
     // 4. Stream Gemini response
     let fullAiContent = '';
-    const stream$ = this.geminiService.streamTransform(body.message);
+    const stream$ = this.geminiService.streamTransform(messageText);
 
     stream$.subscribe({
       next: (chunk: string) => {
@@ -118,15 +124,10 @@ export class AdminController {
       },
       error: async (err) => {
         console.error('[AdminController] DeepSeek stream error — falling back:', err.message);
-        // Fallback khi DeepSeek lỗi (API key sai, hết quota, network...)
         await sendFallback();
       },
       complete: async () => {
-        const savedMessage = await this.threadService.saveAiMessage(
-          threadId,
-          body.message,
-          fullAiContent,
-        );
+        const savedMessage = await this.threadService.saveAiMessage(threadId, messageText, fullAiContent, imageUrl);
         this.wsGateway.emitStreamDone(threadId, savedMessage);
         if (!res.headersSent) {
           res.status(200).json({ success: true, message: savedMessage });

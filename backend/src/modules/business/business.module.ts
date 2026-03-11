@@ -14,4 +14,4 @@ const services = [DeepSeekService, GeminiService, OpenAIService, KnowledgeServic
   exports: [...services],
   providers: [...services],
 })
-export class BusinessModule {}
+export class BusinessModule { }

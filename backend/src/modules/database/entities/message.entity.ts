@@ -18,8 +18,11 @@ export class MessageEntity extends BaseEntity {
   @JoinColumn({ name: 'thread_id' })
   thread: ThreadEntity;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', default: '' })
   content: string;
+
+  @Column({ type: 'varchar', length: 2048, nullable: true, default: null })
+  image_url: string | null;
 
   @Column({
     type: 'enum',

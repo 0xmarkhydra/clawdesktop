@@ -82,12 +82,13 @@ export class ThreadService {
     };
   }
 
-  async createUserMessage(threadId: string, userId: string, content: string) {
+  async createUserMessage(threadId: string, userId: string, content: string, imageUrl?: string) {
     const thread = await this.getThread(threadId, userId);
 
     const message = this.messageRepository.create({
       thread_id: thread.id,
-      content,
+      content: content || '',
+      image_url: imageUrl || null,
       role: MessageRole.USER,
     });
     const saved = await this.messageRepository.save(message);
@@ -134,12 +135,13 @@ export class ThreadService {
     };
   }
 
-  async saveAiMessage(threadId: string, adminDraft: string, aiContent: string) {
+  async saveAiMessage(threadId: string, adminDraft: string, aiContent: string, imageUrl?: string) {
     // Lưu bản gốc của admin
     await this.messageRepository.save(
       this.messageRepository.create({
         thread_id: threadId,
-        content: adminDraft,
+        content: adminDraft || '',
+        image_url: imageUrl || null,
         role: MessageRole.ADMIN_DRAFT,
       }),
     );
@@ -147,7 +149,8 @@ export class ThreadService {
     // Lưu tin nhắn AI hoàn chỉnh
     const aiMessage = this.messageRepository.create({
       thread_id: threadId,
-      content: aiContent,
+      content: aiContent || '',
+      image_url: imageUrl || null,
       role: MessageRole.AI,
     });
     const saved = await this.messageRepository.save(aiMessage);

@@ -29,6 +29,7 @@
       "@/business/*": ["modules/business/*"],
       "@/queue/*": ["modules/queue/*"],
       "@/websocket/*": ["modules/websocket/*"],
+      "@/upload/*": ["modules/upload/*"],
       "@nestjs/passport": ["./node_modules/@nestjs/passport"],
       "passport-jwt": ["./node_modules/passport-jwt"],
       "ethers": ["./node_modules/ethers"]
