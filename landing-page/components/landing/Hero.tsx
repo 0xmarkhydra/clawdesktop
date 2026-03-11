@@ -79,13 +79,14 @@ export default function Hero() {
         {/* CTAs */}
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link
-            href="#pricing"
+            href={`${process.env.NEXT_PUBLIC_API_URL}/upload/clawdesktop-mac`}
+            prefetch={false}
             className="flex items-center gap-2 rounded-full bg-neon-purple px-8 py-3.5 text-base font-bold text-white shadow-lg transition-all hover:opacity-90 hover:shadow-[0_0_30px_rgba(229,95,77,0.5)]"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="h-5 w-5" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
             </svg>
-            Tải ngay miễn phí (Windows/Mac)
+            Tải ClawDesktop cho macOS
           </Link>
           <Link
             href="#demo"

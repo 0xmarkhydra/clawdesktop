@@ -10,9 +10,9 @@ const plans = [
     period: "mãi mãi",
     highlight: true,
     badge: null,
-    desc: "OpenClaw Desktop hoàn toàn miễn phí – đủ tính năng cho mọi người.",
+    desc: "OpenClaw Desktop hoàn toàn miễn phí – đủ tính năng cho mọi người. Hiện tại hỗ trợ cài đặt trên macOS.",
     features: [
-      "Cài đặt 1 click (Windows & Mac)",
+      "Cài đặt 1 click (macOS)",
       "100+ skill (Zalo, Shopee, ngân hàng...)",
       "Skill Builder kéo-thả không giới hạn",
       "Giao diện tiếng Việt 100%",
@@ -21,9 +21,9 @@ const plans = [
       "Skill mới cập nhật liên tục",
     ],
     disabled: [] as string[],
-    cta: "Tải miễn phí",
+    cta: "Tải ClawDesktop cho macOS",
     ctaStyle: "bg-neon-green text-black font-bold hover:opacity-90 hover:shadow-[0_0_30px_rgba(95,217,203,0.5)]",
-    href: "#",
+    href: `${process.env.NEXT_PUBLIC_API_URL}/upload/clawdesktop-mac`,
   },
 ];
 

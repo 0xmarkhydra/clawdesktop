@@ -27,7 +27,7 @@ export default function DieuKhoanSuDungPage() {
             <section>
               <h2 className="text-lg font-semibold text-foreground">2. Mô tả dịch vụ</h2>
               <p>
-                ClawDesktop.vn là phiên bản Desktop tiếng Việt chính thức, dựa trên nền tảng OpenClaw (mã nguồn mở). Sản phẩm giúp người dùng cài đặt và sử dụng trợ lý AI trên máy tính (Windows, macOS, Linux) một cách dễ dàng, không cần kỹ năng lập trình.
+                ClawDesktop.vn là phiên bản Desktop tiếng Việt chính thức, dựa trên nền tảng OpenClaw (mã nguồn mở). Sản phẩm giúp người dùng cài đặt và sử dụng trợ lý AI trên máy tính (hiện tại hỗ trợ macOS) một cách dễ dàng, không cần kỹ năng lập trình.
               </p>
             </section>
 
