@@ -1,7 +1,8 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
+import { Readable } from 'stream';
 
 @Injectable()
 export class UploadService {
@@ -49,5 +50,51 @@ export class UploadService {
     const url = `${this.endpoint}/${this.bucket}/${key}`;
 
     return { url, key };
+  }
+
+  async uploadInstaller(file: Express.Multer.File): Promise<{ url: string; key: string }> {
+    const allowedMimeTypes = ['application/x-apple-diskimage', 'application/octet-stream'];
+
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      throw new BadRequestException(
+        `File type not allowed. Allowed types: ${allowedMimeTypes.join(', ')}`,
+      );
+    }
+
+    const ext = path.extname(file.originalname).toLowerCase() || '.bin';
+    const key = `installers/${Date.now()}-${uuidv4()}${ext}`;
+
+    const command = new PutObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+      ContentLength: file.size,
+    });
+
+    await this.s3Client.send(command);
+
+    const url = `${this.endpoint}/${this.bucket}/${key}`;
+
+    return { url, key };
+  }
+
+  async getInstallerStream(key: string): Promise<Readable> {
+    try {
+      const command = new GetObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+      });
+
+      const response = await this.s3Client.send(command);
+
+      if (!response.Body) {
+        throw new BadRequestException('Installer file not found in storage');
+      }
+
+      return response.Body as Readable;
+    } catch (error) {
+      throw new BadRequestException('Failed to download installer file');
+    }
   }
 }
