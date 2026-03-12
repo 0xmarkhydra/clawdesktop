@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ShieldCheck, Bot, User, Send, LogOut, MessageSquare, Loader2, RefreshCw, Bell, Paperclip, X
 } from 'lucide-react';
@@ -25,7 +25,9 @@ function sortThreadsByUpdatedAt<T extends { updated_at: string }>(list: T[]): T[
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, logout } = useAuthStore();
+  const autoSelectDoneRef = useRef(false);
   const [threads, setThreads] = useState<Thread[]>([]);
   const [activeThread, setActiveThread] = useState<Thread | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -97,6 +99,38 @@ export default function AdminDashboard() {
   }
 
   useEffect(() => { loadThreads(); }, []);
+
+  // Auto-select thread from URL ?id= query param (e.g. from Telegram notification link)
+  useEffect(() => {
+    if (autoSelectDoneRef.current || loadingThreads) return;
+    const threadId = searchParams.get('id');
+    if (!threadId) return;
+
+    const inList = threads.find(t => t.id === threadId);
+    if (inList) {
+      autoSelectDoneRef.current = true;
+      setActiveThread(inList);
+      return;
+    }
+
+    // Thread not in current page — fetch it directly from API
+    if (threads.length === 0) return;
+    autoSelectDoneRef.current = true;
+    api.get(`/admin/threads/${threadId}/messages`, { params: { page: 1, take: 1 } })
+      .then(() => api.get(`/admin/threads`, { params: { page: 1, take: 100 } }))
+      .then(res => {
+        const allThreads: Thread[] = res.data.data || [];
+        const found = allThreads.find(t => t.id === threadId);
+        if (found) {
+          setThreads(prev => {
+            const ids = new Set(prev.map(t => t.id));
+            return ids.has(found.id) ? prev : sortThreadsByUpdatedAt([found, ...prev]);
+          });
+          setActiveThread(found);
+        }
+      })
+      .catch(() => {});
+  }, [threads, loadingThreads, searchParams]);
 
   // WebSocket setup
   useEffect(() => {

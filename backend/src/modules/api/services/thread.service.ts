@@ -8,6 +8,7 @@ import { ThreadStatus } from '@/database/entities/thread.entity';
 import { MessageRole } from '@/database/entities/message.entity';
 import { GeminiService } from '@/business/services/gemini.service';
 import { KnowledgeService } from '@/business/services/knowledge.service';
+import { TelegramService } from './telegram.service';
 
 @Injectable()
 export class ThreadService {
@@ -16,6 +17,7 @@ export class ThreadService {
     private messageRepository: MessageRepository,
     private geminiService: GeminiService,
     private knowledgeService: KnowledgeService,
+    private telegramService: TelegramService,
   ) {}
 
   async createThread(userId: string, title?: string) {
@@ -96,6 +98,11 @@ export class ThreadService {
     // Cập nhật updated_at của thread
     await this.threadRepository.update(thread.id, { updated_at: new Date() });
 
+    // Send Telegram notification on first message in thread
+    this.sendTelegramNotificationIfFirstMessage(thread, saved.id, content).catch((err) => {
+      console.error('🔴 ThreadService createUserMessage telegram notification error:', err);
+    });
+
     // Trigger AI Auto-reply nếu thread đang bật chế độ is_auto_reply
     if (thread.is_auto_reply) {
       const context = this.knowledgeService.getVpsContext();
@@ -158,6 +165,22 @@ export class ThreadService {
     // Cập nhật updated_at của thread
     await this.threadRepository.update(threadId, { updated_at: new Date() });
     return saved;
+  }
+
+  private async sendTelegramNotificationIfFirstMessage(
+    thread: Awaited<ReturnType<typeof this.getThread>>,
+    savedMessageId: string,
+    content: string,
+  ): Promise<void> {
+    const messageCount = await this.messageRepository.count({
+      where: { thread_id: thread.id, deleted_at: null },
+    });
+
+    if (messageCount !== 1) return;
+
+    const username = thread.user?.username || thread.user?.email || 'Unknown';
+    await this.telegramService.sendNewThreadNotification(thread, username, content);
+    console.log(`✅ ThreadService sendTelegramNotificationIfFirstMessage: sent for thread ${thread.id}`);
   }
 
   // Cập nhật trạng thái auto-reply

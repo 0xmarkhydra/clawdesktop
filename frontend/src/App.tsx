@@ -19,12 +19,14 @@ function ProtectedRoute({
   domainMode: DomainMode;
 }) {
   const { isLoggedIn, isAdmin } = useAuthStore();
+  const location = useLocation();
   if (!isLoggedIn()) {
     const to = domainMode === 'admin-only' || adminOnly ? '/admin/login' : '/login';
-    return <Navigate to={to} replace />;
+    return <Navigate to={to} state={{ from: location.pathname + location.search }} replace />;
   }
   if (adminOnly && !isAdmin()) {
-    return <Navigate to={domainMode === 'admin-only' ? '/admin/login' : '/login'} replace />;
+    const to = domainMode === 'admin-only' ? '/admin/login' : '/login';
+    return <Navigate to={to} state={{ from: location.pathname + location.search }} replace />;
   }
   return <>{children}</>;
 }
