@@ -172,7 +172,7 @@ export default function Hero() {
           </div>
           <div className="relative aspect-video w-full bg-surface-2">
             <iframe
-              src="https://www.youtube.com/embed/CzgC3ANieqA?si=YnbydZfpU5wPapws"
+              src="https://www.youtube.com/embed/CzgC3ANieqA?si=YnbydZfpU5wPapws&autoplay=1&mute=1&playsinline=1"
               title="YouTube video player"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               referrerPolicy="strict-origin-when-cross-origin"
