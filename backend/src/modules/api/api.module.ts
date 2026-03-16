@@ -26,6 +26,7 @@ import { UploadModule } from '@/upload/upload.module';
 import { AuthService } from './services/auth.service';
 import { ThreadService } from './services/thread.service';
 import { TelegramService } from './services/telegram.service';
+import { JwtTokenService } from './services/jwt.service';
 import { GeminiService } from '@/business/services/gemini.service';
 import { KnowledgeService } from '@/business/services/knowledge.service';
 
@@ -36,7 +37,7 @@ import { WebSocketGateway } from '../websocket/websocket.gateway';
 import { UserRepository, ThreadRepository, MessageRepository } from '@/database/repositories';
 
 const controllers = [HealthController, AuthController, ThreadController, AdminController];
-const services = [AuthService, ThreadService, TelegramService];
+const services = [AuthService, ThreadService, TelegramService, JwtTokenService];
 
 @Module({
   imports: [

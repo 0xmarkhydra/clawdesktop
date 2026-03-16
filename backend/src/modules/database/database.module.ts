@@ -2,18 +2,19 @@ import { Module } from '@nestjs/common';
 import { configDb } from './configs';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AdminConfigRepository, UserRepository, ThreadRepository, MessageRepository } from './repositories';
+import { AdminConfigRepository, UserRepository, ThreadRepository, MessageRepository, RefreshTokenRepository } from './repositories';
 import { AdminConfigEntity } from './entities/admin-config.entity';
 import { UserEntity } from './entities/user.entity';
 import { ThreadEntity } from './entities/thread.entity';
 import { MessageEntity } from './entities/message.entity';
+import { RefreshTokenEntity } from './entities/refresh-token.entity';
 import { SeedDatabase } from './seeders/seed.database';
 
-const repositories = [AdminConfigRepository, UserRepository, ThreadRepository, MessageRepository];
+const repositories = [AdminConfigRepository, UserRepository, ThreadRepository, MessageRepository, RefreshTokenRepository];
 
 const services = [];
 
-const entities = [AdminConfigEntity, UserEntity, ThreadEntity, MessageEntity];
+const entities = [AdminConfigEntity, UserEntity, ThreadEntity, MessageEntity, RefreshTokenEntity];
 
 @Module({
   imports: [

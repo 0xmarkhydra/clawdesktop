@@ -40,6 +40,7 @@ export default function ChatPage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const [deleteConfirmThreadId, setDeleteConfirmThreadId] = useState<string | null>(null);
   const [, startTransition] = useTransition();
   const activeThreadRef = useRef<Thread | null>(null);
   const prevThreadId = useRef<string | null>(null);
@@ -303,9 +304,15 @@ export default function ChatPage() {
     if (file) attachImageFile(file);
   }
 
-  function handleLogout() {
-    logout();
-    navigate('/login');
+  async function handleLogout() {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force navigate even if logout API fails
+      navigate('/login');
+    }
   }
 
   function formatTime(dateStr: string) {
@@ -322,8 +329,7 @@ export default function ChatPage() {
     return d.toLocaleDateString();
   }
 
-  async function deleteThread(e: React.MouseEvent, threadId: string) {
-    e.stopPropagation();
+  async function performDeleteThread(threadId: string) {
     if (threadId.startsWith('temp-')) {
       setThreads(prev => prev.filter(t => t.id !== threadId));
       if (activeThread?.id === threadId) setActiveThread(null);
@@ -336,6 +342,17 @@ export default function ChatPage() {
     } catch {
       // Optional: show toast or alert
     }
+  }
+
+  async function deleteThread(e: React.MouseEvent, threadId: string) {
+    e.stopPropagation();
+    setDeleteConfirmThreadId(threadId);
+  }
+
+  async function confirmDeleteThread() {
+    if (!deleteConfirmThreadId) return;
+    await performDeleteThread(deleteConfirmThreadId);
+    setDeleteConfirmThreadId(null);
   }
 
   return (
@@ -434,6 +451,45 @@ export default function ChatPage() {
           <button className="btn-logout" onClick={handleLogout} title="Logout"><LogOut size={16} /></button>
         </div>
       </aside>
+
+      {/* Delete confirmation modal */}
+      {deleteConfirmThreadId && (
+        <div
+          className="chat-confirm-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-confirm-title"
+          onClick={() => setDeleteConfirmThreadId(null)}
+        >
+          <div
+            className="chat-confirm-dialog"
+            onClick={e => e.stopPropagation()}
+          >
+            <h2 id="delete-confirm-title" className="chat-confirm-title">
+              Xóa cuộc hội thoại
+            </h2>
+            <p className="chat-confirm-message">
+              Bạn có chắc chắn muốn xóa cuộc hội thoại này? Hành động này không thể hoàn tác.
+            </p>
+            <div className="chat-confirm-actions">
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setDeleteConfirmThreadId(null)}
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={confirmDeleteThread}
+              >
+                Xóa
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Lightbox */}
       {lightboxUrl && (

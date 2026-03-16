@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { UserRepository } from '@/database/repositories';
 import { UserRole } from '@/database/entities/user.entity';
 import { RegisterDto, LoginDto, AdminLoginDto } from '../dtos/register-login.dto';
+import { JwtTokenService, DeviceInfo } from './jwt.service';
 
 @Injectable()
 export class AuthService {
@@ -16,9 +17,12 @@ export class AuthService {
     private userRepository: UserRepository,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private jwtTokenService: JwtTokenService,
   ) {}
 
-  async register(dto: RegisterDto) {
+  async register(dto: RegisterDto, deviceInfo?: DeviceInfo) {
+    console.log(`🔍 [AuthService] [register] email:`, dto.email);
+    
     const exist = await this.userRepository.findOne({ where: { email: dto.email } });
     if (exist) {
       throw new BadRequestException('Email already exists');
@@ -33,14 +37,17 @@ export class AuthService {
     });
     await this.userRepository.save(user);
 
-    const token = this.signToken(user.id, user.email, user.role);
+    const tokens = await this.jwtTokenService.generateTokenPair(user, deviceInfo);
     return {
-      access_token: token,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
       user: { id: user.id, email: user.email, username: user.username, role: user.role },
     };
   }
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto, deviceInfo?: DeviceInfo) {
+    console.log(`🔍 [AuthService] [login] email:`, dto.email);
+    
     const user = await this.userRepository.findOne({ where: { email: dto.email } });
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -51,14 +58,17 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const token = this.signToken(user.id, user.email, user.role);
+    const tokens = await this.jwtTokenService.generateTokenPair(user, deviceInfo);
     return {
-      access_token: token,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
       user: { id: user.id, email: user.email, username: user.username, role: user.role },
     };
   }
 
-  async adminLogin(dto: AdminLoginDto) {
+  async adminLogin(dto: AdminLoginDto, deviceInfo?: DeviceInfo) {
+    console.log(`🔍 [AuthService] [adminLogin] username:`, dto.username);
+    
     const adminUsername = this.configService.get<string>('ADMIN_USERNAME');
     const adminPassword = this.configService.get<string>('ADMIN_PASSWORD');
 
@@ -82,11 +92,38 @@ export class AuthService {
       await this.userRepository.save(admin);
     }
 
-    const token = this.signToken(admin.id, admin.email, admin.role);
+    const tokens = await this.jwtTokenService.generateTokenPair(admin, deviceInfo);
     return {
-      access_token: token,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
       user: { id: admin.id, email: admin.email, username: admin.username, role: admin.role },
     };
+  }
+
+  async refreshToken(refreshToken: string) {
+    console.log(`🔍 [AuthService] [refreshToken]`);
+    
+    return await this.jwtTokenService.refreshAccessToken(refreshToken);
+  }
+
+  async logout(refreshToken: string) {
+    console.log(`🔍 [AuthService] [logout]`);
+    
+    await this.jwtTokenService.revokeRefreshToken(refreshToken);
+    return { message: 'Logged out successfully' };
+  }
+
+  async logoutAll(userId: string) {
+    console.log(`🔍 [AuthService] [logoutAll] userId:`, userId);
+    
+    await this.jwtTokenService.revokeAllUserTokens(userId);
+    return { message: 'Logged out from all devices successfully' };
+  }
+
+  async getUserSessions(userId: string) {
+    console.log(`🔍 [AuthService] [getUserSessions] userId:`, userId);
+    
+    return await this.jwtTokenService.getUserActiveTokens(userId);
   }
 
   private signToken(userId: string, email: string, role: UserRole): string {

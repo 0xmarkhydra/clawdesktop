@@ -1,31 +1,26 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Loader2, User, Lock } from 'lucide-react';
-import { api } from '../../lib/api';
 import { useAuthStore } from '../../store/auth.store';
 import logoIcon from '../../assets/logo.svg';
 
 export default function AdminLoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { setAuth } = useAuthStore();
+  const { adminLogin, isLoading } = useAuthStore();
   const [form, setForm] = useState({ username: '', password: '' });
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
-    setLoading(true);
+    
     try {
-      const res = await api.post('/auth/admin/login', form);
-      setAuth(res.data.user, res.data.access_token);
+      await adminLogin(form);
       const redirectTo = (location.state as { from?: string })?.from || '/admin';
       navigate(redirectTo, { replace: true });
     } catch (err: any) {
       setError(err.response?.data?.message || 'Invalid admin credentials');
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -77,9 +72,9 @@ export default function AdminLoginPage() {
 
           {error && <p className="form-error" style={{ marginBottom: 12 }}>{error}</p>}
 
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: 4, background: 'linear-gradient(135deg, #ef4444, #dc2626)' }} disabled={loading}>
-            {loading ? <Loader2 size={16} style={{ animation: 'spin 0.7s linear infinite' }} /> : null}
-            {loading ? 'Signing in...' : 'Admin Sign In'}
+          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: 4, background: 'linear-gradient(135deg, #ef4444, #dc2626)' }} disabled={isLoading}>
+            {isLoading ? <Loader2 size={16} style={{ animation: 'spin 0.7s linear infinite' }} /> : null}
+            {isLoading ? 'Signing in...' : 'Admin Sign In'}
           </button>
         </form>
 

@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorator/public.decorator';
+import { JwtTokenService } from '../services/jwt.service';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -16,6 +17,7 @@ export class JwtAuthGuard implements CanActivate {
     private jwtService: JwtService,
     private configService: ConfigService,
     private reflector: Reflector,
+    private jwtTokenService: JwtTokenService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -33,12 +35,11 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: this.configService.get<string>('auth.jwt.jwt_secret_key'),
-      });
+      const payload = await this.jwtTokenService.verifyAccessToken(token);
       request['user'] = payload;
-    } catch {
-      throw new UnauthorizedException('Invalid token');
+    } catch (error) {
+      console.log(`🔴 [JwtAuthGuard] [canActivate] error:`, error.message);
+      throw new UnauthorizedException('Invalid or expired token');
     }
 
     return true;

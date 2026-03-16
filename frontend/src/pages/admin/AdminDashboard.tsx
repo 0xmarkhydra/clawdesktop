@@ -307,7 +307,16 @@ export default function AdminDashboard() {
     }
   }
 
-  function handleLogout() { logout(); navigate('/admin/login'); }
+  async function handleLogout() {
+    try {
+      await logout();
+      navigate('/admin/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force navigate even if logout API fails
+      navigate('/admin/login');
+    }
+  }
 
   function formatTime(dateStr: string) {
     return new Date(dateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });

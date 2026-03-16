@@ -1,30 +1,25 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, User, Eye, EyeOff, Loader2 } from 'lucide-react';
-import { api } from '../lib/api';
 import { useAuthStore } from '../store/auth.store';
 import logoIcon from '../assets/logo.svg';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { setAuth } = useAuthStore();
+  const { register, isLoading } = useAuthStore();
   const [form, setForm] = useState({ email: '', password: '', username: '' });
   const [showPass, setShowPass] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
-    setLoading(true);
+    
     try {
-      const res = await api.post('/auth/register', form);
-      setAuth(res.data.user, res.data.access_token);
+      await register(form);
       navigate('/chat');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -97,9 +92,9 @@ export default function RegisterPage() {
 
           {error && <p className="form-error" style={{ marginBottom: 12 }}>{error}</p>}
 
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: 4 }} disabled={loading}>
-            {loading ? <Loader2 size={16} style={{ animation: 'spin 0.7s linear infinite' }} /> : null}
-            {loading ? 'Creating account...' : 'Create Account'}
+          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: 4 }} disabled={isLoading}>
+            {isLoading ? <Loader2 size={16} style={{ animation: 'spin 0.7s linear infinite' }} /> : null}
+            {isLoading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
 
