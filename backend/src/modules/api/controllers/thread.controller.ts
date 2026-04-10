@@ -30,7 +30,7 @@ export class ThreadController {
     @Request() req,
     @Body() body: { title?: string },
   ) {
-    return this.threadService.createThread(req.user.sub, body.title);
+    return this.threadService.createThread(req.user.userId, body.title);
   }
 
   @Get()
@@ -40,19 +40,19 @@ export class ThreadController {
     @Query('page') page = 1,
     @Query('take') take = 20,
   ) {
-    return this.threadService.getUserThreads(req.user.sub, +page, +take);
+    return this.threadService.getUserThreads(req.user.userId, +page, +take);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get thread detail with messages' })
   async getThread(@Param('id') id: string, @Request() req) {
-    return this.threadService.getThread(id, req.user.sub);
+    return this.threadService.getThread(id, req.user.userId);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a thread (soft delete)' })
   async deleteThread(@Param('id') id: string, @Request() req) {
-    return this.threadService.deleteThread(id, req.user.sub);
+    return this.threadService.deleteThread(id, req.user.userId);
   }
 
   @Get(':id/messages')
@@ -64,7 +64,7 @@ export class ThreadController {
     @Query('take') take = 50,
   ) {
     // Verify ownership
-    await this.threadService.getThread(id, req.user.sub);
+    await this.threadService.getThread(id, req.user.userId);
     return this.threadService.getThreadMessages(id, +page, +take);
   }
 
@@ -75,7 +75,7 @@ export class ThreadController {
     @Request() req,
     @Body() body: { content?: string; image_url?: string },
   ) {
-    const message = await this.threadService.createUserMessage(id, req.user.sub, body.content || '', body.image_url);
+    const message = await this.threadService.createUserMessage(id, req.user.userId, body.content || '', body.image_url);
 
     // Lấy thread info để gửi kèm notification cho admin
     const thread = await this.threadService.getThread(id);
