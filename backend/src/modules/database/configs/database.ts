@@ -24,17 +24,31 @@ const parseDatabaseUrl = (url: string) => {
 export const configDb = registerAs(
   'db',
   (): TypeOrmModuleOptions => {
-    // Parse DATABASE_URL if available (higher priority)
     const databaseUrl = process.env.DATABASE_URL;
-    const parsedUrl = databaseUrl ? parseDatabaseUrl(databaseUrl) : null;
 
+    // If DATABASE_URL is provided, use it directly with url property
+    if (databaseUrl) {
+      return {
+        type: 'postgres',
+        url: databaseUrl,
+        synchronize: Boolean(Number(process.env.DB_SYNC)) || false,
+        autoLoadEntities: true,
+        logging: Boolean(Number(process.env.DB_DEBUG)) || false,
+        ssl: { rejectUnauthorized: false },
+        extra: {
+          ssl: { rejectUnauthorized: false },
+        },
+      };
+    }
+
+    // Fallback to individual env vars
     return {
       type: 'postgres',
-      host: parsedUrl?.host || process.env.DB_HOST || 'localhost',
-      port: parsedUrl?.port || Number(process.env.DB_PORT) || 5432,
-      username: parsedUrl?.username || process.env.DB_USERNAME || 'root',
-      password: parsedUrl?.password || process.env.DB_PASSWORD || 'root',
-      database: parsedUrl?.database || process.env.DB_DATABASE || 'postgres',
+      host: process.env.DB_HOST || 'localhost',
+      port: Number(process.env.DB_PORT) || 5432,
+      username: process.env.DB_USERNAME || 'root',
+      password: process.env.DB_PASSWORD || 'root',
+      database: process.env.DB_DATABASE || 'postgres',
       synchronize: Boolean(Number(process.env.DB_SYNC)) || false,
       autoLoadEntities: true,
       logging: Boolean(Number(process.env.DB_DEBUG)) || false,
