@@ -20,10 +20,10 @@ export default function Navbar() {
 
           {/* Desktop nav */}
           <nav className="hidden items-center gap-6 md:flex">
-            {["Tính năng", "Cách cài", "Giá", "Skill"].map((item) => (
+            {["Tính năng", "Giá", "Skill"].map((item) => (
               <Link
                 key={item}
-                href={`#${item === "Tính năng" ? "features" : item === "Cách cài" ? "install" : item === "Giá" ? "pricing" : "vietnam-pack"}`}
+                href={`#${item === "Tính năng" ? "features" : item === "Giá" ? "pricing" : "vietnam-pack"}`}
                 className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 {item}
@@ -34,8 +34,9 @@ export default function Navbar() {
           {/* CTA buttons */}
           <div className="hidden items-center gap-3 md:flex">
             <Link
-              href="https://zalo.me/g/iirzlr303"
+              href="https://zalo.me/0912205001"
               target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-1.5 rounded-full border border-border px-4 py-1.5 text-sm text-foreground transition-colors hover:border-neon-purple hover:text-accent"
             >
               <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4" aria-hidden="true">
@@ -44,10 +45,12 @@ export default function Navbar() {
               Liên hệ Zalo
             </Link>
             <Link
-              href="#pricing"
+              href="https://zalo.me/0912205001"
+              target="_blank"
+              rel="noopener noreferrer"
               className="rounded-full bg-neon-purple px-4 py-1.5 text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-[0_0_16px_rgba(229,95,77,0.5)]"
             >
-              Tải miễn phí
+              Dùng thử ngay
             </Link>
           </div>
 
@@ -76,7 +79,6 @@ export default function Navbar() {
           <nav className="flex flex-col gap-4">
             {[
               { label: "Tính năng", href: "#features" },
-              { label: "Cách cài", href: "#install" },
               { label: "Giá", href: "#pricing" },
               { label: "Skill", href: "#vietnam-pack" },
             ].map((item) => (
@@ -90,11 +92,11 @@ export default function Navbar() {
               </Link>
             ))}
             <div className="flex flex-col gap-2 pt-2">
-              <Link href="https://zalo.me/g/iirzlr303" target="_blank" className="w-full rounded-full border border-border py-2 text-center text-sm text-foreground">
+              <Link href="https://zalo.me/0912205001" target="_blank" rel="noopener noreferrer" className="w-full rounded-full border border-border py-2 text-center text-sm text-foreground">
                 Liên hệ Zalo
               </Link>
-              <Link href="#pricing" onClick={() => setMenuOpen(false)} className="w-full rounded-full bg-neon-purple py-2 text-center text-sm font-semibold text-white">
-                Tải miễn phí
+              <Link href="https://zalo.me/0912205001" target="_blank" rel="noopener noreferrer" className="w-full rounded-full bg-neon-purple py-2 text-center text-sm font-semibold text-white">
+                Dùng thử ngay
               </Link>
             </div>
           </nav>
