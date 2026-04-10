@@ -15,7 +15,9 @@ export default function Footer() {
           </p>
           <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
-              href="#pricing"
+              href="https://app.clawdesktop.vn/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="w-full rounded-full bg-neon-purple px-8 py-3 text-center text-sm font-bold text-white transition-all hover:opacity-90 hover:shadow-[0_0_20px_rgba(229,95,77,0.4)] sm:w-auto"
             >
               Tải miễn phí ngay

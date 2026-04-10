@@ -93,7 +93,7 @@ export default function HowToInstall() {
         {/* Bottom CTA */}
         <div className="mt-14 flex justify-center">
           <a
-            href="#pricing"
+            href="#demo"
             className="flex items-center gap-2 rounded-full bg-neon-green px-8 py-3.5 text-base font-bold text-black shadow-lg transition-all hover:opacity-90 hover:shadow-[0_0_30px_rgba(0,255,157,0.4)]"
           >
             Bắt đầu ngay – Miễn phí

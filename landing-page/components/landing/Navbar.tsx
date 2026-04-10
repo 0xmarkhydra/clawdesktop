@@ -20,10 +20,10 @@ export default function Navbar() {
 
           {/* Desktop nav */}
           <nav className="hidden items-center gap-6 md:flex">
-            {["Tính năng", "Giá", "Skill"].map((item) => (
+            {["Tính năng", "Skill"].map((item) => (
               <Link
                 key={item}
-                href={`#${item === "Tính năng" ? "features" : item === "Giá" ? "pricing" : "vietnam-pack"}`}
+                href={`#${item === "Tính năng" ? "features" : "vietnam-pack"}`}
                 className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 {item}
@@ -79,7 +79,6 @@ export default function Navbar() {
           <nav className="flex flex-col gap-4">
             {[
               { label: "Tính năng", href: "#features" },
-              { label: "Giá", href: "#pricing" },
               { label: "Skill", href: "#vietnam-pack" },
             ].map((item) => (
               <Link
