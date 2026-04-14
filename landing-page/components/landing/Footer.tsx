@@ -4,14 +4,14 @@ export default function Footer() {
   return (
     <footer className="border-t border-border bg-surface">
       {/* CTA Banner */}
-      <div className="border-b border-border bg-neon-green/5 py-12">
+      <div className="border-b border-border bg-neon-purple/5 py-12">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
           <h2 className="text-2xl font-extrabold text-foreground sm:text-3xl">
-            Sẵn sàng tiết kiệm{" "}
-            <span className="neon-green">hàng giờ mỗi ngày</span>?
+            Bắt đầu ngay –{" "}
+            <span className="neon-purple">miễn phí hoàn toàn</span>
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Tham gia cùng hàng nghìn người Việt đang dùng ClawDesktop ngay hôm nay.
+            Tải về, cài 3 phút, dùng ngay. Không cần thẻ tín dụng, không cần đăng ký.
           </p>
           <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
@@ -23,8 +23,9 @@ export default function Footer() {
               Tải miễn phí ngay
             </Link>
             <Link
-              href="https://zalo.me/g/iirzlr303"
+              href="https://zalo.me/0912205001"
               target="_blank"
+              rel="noopener noreferrer"
               className="w-full rounded-full border border-border px-8 py-3 text-center text-sm font-semibold text-foreground transition-colors hover:border-neon-purple hover:text-accent sm:w-auto"
             >
               Nhắn Zalo tư vấn
@@ -59,7 +60,7 @@ export default function Footer() {
                 </svg>
               </Link>
               <Link
-                href="https://zalo.me/g/iirzlr303"
+                href="https://zalo.me/0912205001"
                 target="_blank"
                 aria-label="Zalo OA"
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-neon-green/50 hover:text-neon-green"
@@ -75,10 +76,14 @@ export default function Footer() {
           <div>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-widest text-foreground">Sản phẩm</h3>
             <ul className="space-y-2">
-              {["Tính năng", "Cách cài đặt", "Skill", "Giá cả"].map((item) => (
-                <li key={item}>
-                  <Link href="#" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                    {item}
+              {[
+                { label: "Tính năng", href: "#features" },
+                { label: "Skill", href: "#vietnam-pack" },
+                { label: "FAQ", href: "#faq" },
+              ].map((item) => (
+                <li key={item.label}>
+                  <Link href={item.href} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                    {item.label}
                   </Link>
                 </li>
               ))}
@@ -91,7 +96,7 @@ export default function Footer() {
             <ul className="space-y-2">
               {[
                 { label: "FAQ", href: "#faq" },
-                { label: "Cộng đồng Zalo", href: "https://zalo.me/g/iirzlr303" },
+                { label: "Cộng đồng Zalo", href: "https://zalo.me/0912205001" },
                 { label: "Cập nhật mới", href: "#" },
               ].map((item) => (
                 <li key={item.label}>

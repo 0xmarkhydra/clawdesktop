@@ -25,7 +25,7 @@ const faqs = [
   },
   {
     q: "Nếu gặp lỗi thì được hỗ trợ như thế nào?",
-    a: "Tham gia cộng đồng Zalo để được hỗ trợ. Tôi phản hồi trong 30 phút trong giờ làm việc.",
+    a: "Tham gia cộng đồng Zalo tại zalo.me/0912205001 để được hỗ trợ. Phản hồi trong 30 phút trong giờ làm việc.",
   },
 ];
 
