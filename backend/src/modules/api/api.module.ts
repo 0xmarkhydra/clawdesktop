@@ -55,6 +55,17 @@ const services = [AuthService, ThreadService, TelegramService, JwtTokenService];
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         try {
+          const isProduction = process.env.APP_ENV === 'production';
+          const enableRedisCache = process.env.ENABLE_REDIS_CACHE === '1';
+
+          // Keep API stable in local/dev: use in-memory cache unless explicitly enabled.
+          if (!isProduction && !enableRedisCache) {
+            return {
+              ttl: configService.get('cache.api.cache_ttl'),
+              store: undefined,
+            };
+          }
+
           let urlRedis: string;
 
           if (process.env.REDIS_URL) {
