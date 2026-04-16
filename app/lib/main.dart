@@ -119,7 +119,7 @@ class AppRepository {
 
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: const String.fromEnvironment('API_URL', defaultValue: 'http://localhost:8000'),
+      baseUrl: const String.fromEnvironment('API_URL', defaultValue: 'https://api.clawdesktop.vn'),
       connectTimeout: const Duration(seconds: 8),
       receiveTimeout: const Duration(seconds: 12),
       sendTimeout: const Duration(seconds: 12),
@@ -250,7 +250,7 @@ class AppRepository {
   io.Socket connectSocket() {
     if (_socket != null) return _socket!;
     _socket = io.io(
-      const String.fromEnvironment('API_URL', defaultValue: 'http://localhost:8000'),
+      const String.fromEnvironment('API_URL', defaultValue: 'https://api.clawdesktop.vn'),
       io.OptionBuilder().setTransports(['websocket']).disableAutoConnect().setReconnectionAttempts(999999).build(),
     );
     _socket!.connect();
