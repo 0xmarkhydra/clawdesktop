@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
+import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -61,8 +62,66 @@ class ClawApp extends StatelessWidget {
   }
 }
 
-class AppGate extends StatelessWidget {
+class AppGate extends StatefulWidget {
   const AppGate({super.key});
+
+  @override
+  State<AppGate> createState() => _AppGateState();
+}
+
+class _AppGateState extends State<AppGate> {
+  final AppLinks _appLinks = AppLinks();
+  StreamSubscription<Uri>? _linkSubscription;
+  String? _pendingThreadId;
+
+  @override
+  void initState() {
+    super.initState();
+    _listenUniversalLinks();
+  }
+
+  Future<void> _listenUniversalLinks() async {
+    try {
+      final initialUri = await _appLinks.getInitialLink();
+      _handleIncomingUri(initialUri);
+    } catch (_) {
+      // Ignore invalid initial link.
+    }
+
+    _linkSubscription = _appLinks.uriLinkStream.listen(
+      _handleIncomingUri,
+      onError: (_) {
+        // Ignore malformed runtime links.
+      },
+    );
+  }
+
+  void _handleIncomingUri(Uri? uri) {
+    if (uri == null) return;
+    final threadId = _parseThreadIdFromUri(uri);
+    if (threadId == null) return;
+    final authState = context.read<AuthCubit>().state;
+    if (authState.isAuthenticated) {
+      unawaited(context.read<ChatCubit>().openThreadById(threadId));
+      return;
+    }
+    _pendingThreadId = threadId;
+  }
+
+  String? _parseThreadIdFromUri(Uri uri) {
+    final segments = uri.pathSegments;
+    final index = segments.indexOf('threads');
+    if (index == -1 || index + 1 >= segments.length) return null;
+    final threadId = segments[index + 1].trim();
+    if (threadId.isEmpty) return null;
+    return threadId;
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +129,11 @@ class AppGate extends StatelessWidget {
       listener: (context, state) {
         if (state.isAuthenticated) {
           context.read<ChatCubit>().initialize(state.user!);
+          final pendingThreadId = _pendingThreadId;
+          if (pendingThreadId != null) {
+            _pendingThreadId = null;
+            unawaited(context.read<ChatCubit>().openThreadById(pendingThreadId));
+          }
         } else {
           context.read<ChatCubit>().clear();
         }
@@ -500,6 +564,30 @@ class ChatCubit extends Cubit<ChatState> {
     } catch (_) {
       emit(state.copyWith(error: 'Không mở được cuộc hội thoại.'));
     }
+  }
+
+  Future<void> openThreadById(String threadId) async {
+    ThreadModel? targetThread;
+    for (final thread in state.threads) {
+      if (thread.id == threadId) {
+        targetThread = thread;
+        break;
+      }
+    }
+    if (targetThread == null) {
+      await loadThreads();
+      for (final thread in state.threads) {
+        if (thread.id == threadId) {
+          targetThread = thread;
+          break;
+        }
+      }
+    }
+    if (targetThread == null) {
+      emit(state.copyWith(error: 'Không tìm thấy cuộc hội thoại từ Universal Link.'));
+      return;
+    }
+    await openThread(targetThread);
   }
 
   Future<void> deleteThread(ThreadModel thread) async {
