@@ -8,8 +8,12 @@ const faqs = [
     a: "ClawDesktop.vn là phiên bản desktop không chính thức của OpenClaw, dựa trên OpenClaw official (open-source). Tôi đã Việt hoá toàn bộ giao diện và thêm skill. OpenClaw là dự án open-source và tôi tuân thủ đầy đủ giấy phép.",
   },
   {
+    q: "Làm sao để lấy bản cài đặt / dùng thử?",
+    a: "Website không còn nút tải công khai. Bạn nhắn Zalo tại zalo.me/0912205001 để xin bản dùng thử; team sẽ hướng dẫn và gửi file cài phù hợp khi phù hợp.",
+  },
+  {
     q: "Tôi cần có kiến thức kỹ thuật gì để cài không?",
-    a: "Hoàn toàn không cần! ClawDesktop được thiết kế dành riêng cho người không biết code. Chỉ cần tải file về và bấm cài – như cài bất kỳ phần mềm thông thường nào. Giao diện và hướng dẫn đều bằng tiếng Việt.",
+    a: "Hoàn toàn không cần! ClawDesktop được thiết kế dành riêng cho người không biết code. Sau khi nhận file cài, chỉ cần bấm cài – như cài bất kỳ phần mềm thông thường nào. Giao diện và hướng dẫn đều bằng tiếng Việt.",
   },
   {
     q: "ClawDesktop có an toàn không? Dữ liệu của tôi có bị lộ không?",

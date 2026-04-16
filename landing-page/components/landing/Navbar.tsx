@@ -37,7 +37,7 @@ export default function Navbar() {
               href="https://zalo.me/0912205001"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-full border border-border px-4 py-1.5 text-sm text-foreground transition-colors hover:border-neon-purple hover:text-accent"
+              className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-4 py-1.5 text-sm text-foreground transition-colors hover:border-neon-purple hover:text-accent"
             >
               <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4" aria-hidden="true">
                 <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.978-1.305A9.954 9.954 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2Z" />
@@ -48,9 +48,9 @@ export default function Navbar() {
               href="https://zalo.me/0912205001"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-neon-purple px-4 py-1.5 text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-[0_0_16px_rgba(229,95,77,0.5)]"
+              className="cursor-pointer rounded-full bg-neon-purple px-4 py-1.5 text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-[0_0_16px_rgba(229,95,77,0.5)]"
             >
-              Dùng thử ngay
+              Xin bản dùng thử
             </Link>
           </div>
 
@@ -91,11 +91,11 @@ export default function Navbar() {
               </Link>
             ))}
             <div className="flex flex-col gap-2 pt-2">
-              <Link href="https://zalo.me/0912205001" target="_blank" rel="noopener noreferrer" className="w-full rounded-full border border-border py-2 text-center text-sm text-foreground">
+              <Link href="https://zalo.me/0912205001" target="_blank" rel="noopener noreferrer" className="w-full cursor-pointer rounded-full border border-border py-2 text-center text-sm text-foreground">
                 Liên hệ Zalo
               </Link>
-              <Link href="https://zalo.me/0912205001" target="_blank" rel="noopener noreferrer" className="w-full rounded-full bg-neon-purple py-2 text-center text-sm font-semibold text-white">
-                Dùng thử ngay
+              <Link href="https://zalo.me/0912205001" target="_blank" rel="noopener noreferrer" className="w-full cursor-pointer rounded-full bg-neon-purple py-2 text-center text-sm font-semibold text-white">
+                Xin bản dùng thử
               </Link>
             </div>
           </nav>

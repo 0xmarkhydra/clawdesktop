@@ -73,29 +73,27 @@ export default function Hero() {
         <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
           Chạy trên máy của bạn. Dữ liệu thuộc về bạn.
           <br />
-          100+ kỹ năng. Hoàn toàn miễn phí và mã nguồn mở.
+          100+ kỹ năng. Hoàn toàn miễn phí và mã nguồn mở. Hiện không mở tải công khai — nhắn Zalo để xin bản dùng thử.
         </p>
 
         {/* CTAs */}
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
           <Link
-            href="https://app.clawdesktop.vn/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full bg-neon-purple px-8 py-3 text-sm font-bold text-white shadow-lg transition-all hover:opacity-90 hover:shadow-[0_0_30px_rgba(229,95,77,0.4)]"
-          >
-            Tải miễn phí ngay
-          </Link>
-          <Link
             href="https://zalo.me/0912205001"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 rounded-full border border-border px-7 py-3 text-sm font-semibold text-foreground transition-all hover:border-[#0068FF]/50 hover:text-[#0068FF]"
+            className="flex cursor-pointer items-center gap-2 rounded-full bg-neon-purple px-8 py-3 text-sm font-bold text-white shadow-lg transition-all hover:opacity-90 hover:shadow-[0_0_30px_rgba(229,95,77,0.4)]"
           >
             <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4" aria-hidden="true">
               <path d="M12 0C5.373 0 0 5.149 0 11.5c0 3.23 1.342 6.147 3.498 8.254L2.25 24l4.498-1.498A11.88 11.88 0 0 0 12 23c6.627 0 12-5.149 12-11.5S18.627 0 12 0zm0 21c-1.698 0-3.296-.426-4.686-1.176l-3.314 1.1 1.068-3.198A9.47 9.47 0 0 1 2.5 11.5C2.5 6.253 6.71 2 12 2s9.5 4.253 9.5 9.5S17.29 21 12 21z" />
             </svg>
-            Nhắn Zalo tư vấn
+            Nhắn Zalo xin bản dùng thử
+          </Link>
+          <Link
+            href="#demo"
+            className="cursor-pointer rounded-full border border-border px-7 py-3 text-sm font-semibold text-foreground transition-all hover:border-neon-green/50 hover:text-neon-green"
+          >
+            Xem video demo
           </Link>
         </div>
 

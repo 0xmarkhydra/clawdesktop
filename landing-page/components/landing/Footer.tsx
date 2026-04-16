@@ -7,28 +7,23 @@ export default function Footer() {
       <div className="border-b border-border bg-neon-purple/5 py-12">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
           <h2 className="text-2xl font-extrabold text-foreground sm:text-3xl">
-            Bắt đầu ngay –{" "}
-            <span className="neon-purple">miễn phí hoàn toàn</span>
+            Xin bản dùng thử –{" "}
+            <span className="neon-purple">nhắn Zalo</span>
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Tải về, cài 3 phút, dùng ngay. Không cần thẻ tín dụng, không cần đăng ký.
+            Ứng dụng không còn tải công khai trên web. Nhắn Zalo để được hướng dẫn và nhận bản dùng thử phù hợp. Không cần thẻ tín dụng.
           </p>
           <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link
-              href="https://app.clawdesktop.vn/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full rounded-full bg-neon-purple px-8 py-3 text-center text-sm font-bold text-white transition-all hover:opacity-90 hover:shadow-[0_0_20px_rgba(229,95,77,0.4)] sm:w-auto"
-            >
-              Tải miễn phí ngay
-            </Link>
             <Link
               href="https://zalo.me/0912205001"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full rounded-full border border-border px-8 py-3 text-center text-sm font-semibold text-foreground transition-colors hover:border-neon-purple hover:text-accent sm:w-auto"
+              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-neon-purple px-8 py-3 text-center text-sm font-bold text-white transition-all hover:opacity-90 hover:shadow-[0_0_20px_rgba(229,95,77,0.4)] sm:w-auto"
             >
-              Nhắn Zalo tư vấn
+              <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4 shrink-0" aria-hidden="true">
+                <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.978-1.305A9.954 9.954 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2Z" />
+              </svg>
+              Nhắn Zalo xin bản dùng thử
             </Link>
           </div>
         </div>

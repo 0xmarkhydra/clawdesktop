@@ -10,7 +10,7 @@ const before = [
 ];
 
 const after = [
-  "Bấm 1 nút – tự cài xong, giao diện tiếng Việt 100%",
+  "Nhắn Zalo nhận bản cài – bấm cài xong, giao diện tiếng Việt 100%",
   "Kéo-thả skill, không cần biết code",
   "3 phút là chạy được, dùng ngay",
   "Hướng dẫn tiếng Việt đầy đủ, có support 24/7",
