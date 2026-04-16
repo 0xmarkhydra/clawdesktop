@@ -2,7 +2,7 @@ import axios, { AxiosError } from 'axios';
 import { ethers } from 'ethers';
 
 // Configuration
-const API_URL = 'http://localhost:8000';
+const API_URL = 'https://api.clawdesktop.vn';
 const PRIVATE_KEY = '0x11f55b8b0615deb08729bfe57d3139573e183eb0bd41a958bca2b9bb33b8ba86'; // Replace with private key created from generate-wallet script
 
 // Check server connection before performing main operations
